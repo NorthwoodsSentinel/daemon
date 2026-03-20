@@ -135,7 +135,7 @@ function StatusBar({
       className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border-default bg-bg-secondary/80 backdrop-blur-sm px-4 py-3 mb-6"
     >
       <div className="flex items-center gap-4">
-        <span className="font-mono font-bold text-sm text-accent">DAEMON://SALTEDKEYS</span>
+        <span className="font-mono font-bold text-sm text-accent">DAEMON://NORTHWOODS</span>
         <div className="flex items-center gap-2">
           <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-success animate-pulse-slow' : 'bg-error'}`} />
           <span className="font-mono text-xs text-text-secondary">

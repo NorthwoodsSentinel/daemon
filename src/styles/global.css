@@ -1,134 +1,48 @@
 @import "tailwindcss";
 
-/* Custom Fonts */
-@font-face {
-  font-family: 'Concourse';
-  src: url('/fonts/concourse_3_regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+/* Google Fonts - Serif for NWS aesthetic */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap');
 
-@font-face {
-  font-family: 'Concourse';
-  src: url('/fonts/concourse_3_bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Concourse Medium';
-  src: url('/fonts/concourse_4_regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Concourse Medium';
-  src: url('/fonts/concourse_4_bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Valkyrie';
-  src: url('/fonts/valkyrie_a_regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Valkyrie';
-  src: url('/fonts/valkyrie_a_bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Valkyrie';
-  src: url('/fonts/valkyrie_a_italic.woff2') format('woff2');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Advocate';
-  src: url('/fonts/advocate_34_narr_reg.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Advocate Wide';
-  src: url('/fonts/advocate_54_wide_reg.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Heliotrope';
-  src: url('/fonts/heliotrope_3_regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Heliotrope Caps';
-  src: url('/fonts/heliotrope_3_caps_regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Tailwind v4 Theme - Tokyo Night Storm / Daemon Colors */
+/* Tailwind v4 Theme - NorthWoods Sentinel / Forest Lodge */
 @theme {
-  /* Brand Colors - Cyan/Teal for Daemon */
-  --color-brand: #7dcfff;
-  --color-brand-light: #89ddff;
-  --color-brand-dark: #0db9d7;
-  --color-brand-glow: rgba(125, 207, 255, 0.4);
+  /* Brand Colors - Forest Green */
+  --color-brand: #4a5240;
+  --color-brand-light: #5c6650;
+  --color-brand-dark: #3a4232;
+  --color-brand-glow: rgba(74, 82, 64, 0.3);
 
-  /* Accent - Purple (Tokyo Night) */
-  --color-accent: #9d7cd8;
-  --color-accent-light: #bb9af7;
-  --color-accent-dark: #7c3aed;
+  /* Accent - Warm Gold/Sun */
+  --color-accent: #c4a265;
+  --color-accent-light: #d4b87a;
+  --color-accent-dark: #a8864a;
 
-  /* Secondary Accent - Green */
-  --color-success: #9ece6a;
-  --color-warning: #e0af68;
-  --color-error: #f7768e;
+  /* Secondary Accent - Earth tones */
+  --color-success: #6b8f4a;
+  --color-warning: #c4a265;
+  --color-error: #a65a4a;
 
-  /* Background - Tokyo Night Storm */
-  --color-bg-primary: #0a0a0f;
-  --color-bg-secondary: #1a1b26;
-  --color-bg-tertiary: #1f2335;
-  --color-bg-elevated: #24283b;
+  /* Background - Warm Cream & Olive */
+  --color-bg-primary: #f5f0e8;
+  --color-bg-secondary: #ebe5d9;
+  --color-bg-tertiary: #e0d9ca;
+  --color-bg-elevated: #ffffff;
 
   /* Text */
-  --color-text-primary: #c0caf5;
-  --color-text-secondary: #a9b1d6;
-  --color-text-tertiary: #565f89;
+  --color-text-primary: #2c2c2c;
+  --color-text-secondary: #4a4a4a;
+  --color-text-tertiary: #7a7a6e;
 
   /* Borders */
-  --color-border-subtle: rgba(59, 66, 97, 0.5);
-  --color-border-default: #3b4261;
-  --color-border-emphasis: rgba(125, 207, 255, 0.3);
+  --color-border-subtle: rgba(74, 82, 64, 0.15);
+  --color-border-default: rgba(74, 82, 64, 0.25);
+  --color-border-emphasis: rgba(74, 82, 64, 0.4);
 
-  /* Fonts */
-  --font-display: 'Advocate Wide', 'Advocate', sans-serif;
-  --font-heading: 'Concourse Medium', 'Concourse', sans-serif;
-  --font-body: 'Valkyrie', Georgia, serif;
-  --font-accent: 'Heliotrope Caps', 'Heliotrope', sans-serif;
-  --font-sans: 'Concourse', system-ui, sans-serif;
+  /* Fonts - Serif forward */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Source Serif 4', Georgia, serif;
+  --font-accent: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
 }
 
@@ -143,13 +57,13 @@ html {
 
 body {
   min-height: 100vh;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* Selection */
 ::selection {
-  background-color: var(--color-brand);
-  color: var(--color-bg-primary);
+  background-color: var(--color-accent);
+  color: #ffffff;
 }
 
 /* Scrollbar */
@@ -189,7 +103,7 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-brand-light) 0%, var(--color-brand) 50%, var(--color-brand-dark) 100%);
+  background: linear-gradient(135deg, var(--color-brand-dark) 0%, var(--color-brand) 50%, var(--color-brand-light) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -211,39 +125,39 @@ body {
   position: absolute;
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.03;
+  opacity: 0.02;
   pointer-events: none;
 }
 
-/* Glow Effect */
+/* Glow Effect - Warm instead of neon */
 .glow {
-  box-shadow: 0 0 40px var(--color-brand-glow);
+  box-shadow: 0 0 40px rgba(196, 162, 101, 0.2);
 }
 
 .glow-text {
-  text-shadow: 0 0 40px var(--color-brand-glow);
+  text-shadow: 0 0 40px rgba(196, 162, 101, 0.3);
 }
 
-/* Animated Background Orbs */
+/* Animated Background - Subtle warm orbs instead of neon */
 .bg-orb {
   position: absolute;
   border-radius: 50%;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
-  filter: blur(80px);
+  filter: blur(100px);
 }
 
 .bg-orb-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, var(--color-brand-glow) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(74, 82, 64, 0.15) 0%, transparent 70%);
   animation: orb1-float 12s ease-in-out infinite;
 }
 
 .bg-orb-2 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(157, 124, 216, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(196, 162, 101, 0.1) 0%, transparent 70%);
   animation: orb2-float 15s ease-in-out infinite;
 }
 
@@ -282,11 +196,11 @@ body {
   animation: pulse 2s infinite;
 }
 
-/* Grid background */
+/* Grid background - subtle warm */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(125, 207, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(125, 207, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(74, 82, 64, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 82, 64, 0.04) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 

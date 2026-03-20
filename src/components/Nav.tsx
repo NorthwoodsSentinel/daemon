@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Terminal, FileText, Target } from 'lucide-react';
+import { TreePine, FileText, Target } from 'lucide-react';
 
 export function Nav() {
   const { scrollY } = useScroll();
@@ -28,9 +28,9 @@ export function Nav() {
       <div className="relative max-w-6xl mx-auto flex items-center justify-between">
         {/* Logo / Brand */}
         <a href="/" className="flex items-center gap-3 group">
-          <Terminal className="w-6 h-6 text-brand" />
-          <span className="font-heading font-bold text-xl text-text-primary group-hover:text-brand transition-colors">
-            DAEMON
+          <TreePine className="w-6 h-6 text-brand" />
+          <span className="font-display font-bold text-xl text-text-primary group-hover:text-brand transition-colors tracking-wide">
+            NORTHWOODS
           </span>
         </a>
 
@@ -51,10 +51,10 @@ export function Nav() {
             <span className="hidden sm:inline">TELOS</span>
           </a>
           <a
-            href="/api"
-            className="px-4 py-2 rounded-lg font-heading font-medium text-sm bg-brand/20 hover:bg-brand/30 text-brand border border-brand/30 transition-all duration-300"
+            href="https://northwoodssentinel.com"
+            className="px-4 py-2 rounded-lg font-sans font-medium text-sm bg-brand/10 hover:bg-brand/20 text-brand border border-brand/20 transition-all duration-300"
           >
-            API
+            Blog
           </a>
         </div>
       </div>

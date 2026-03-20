@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Terminal, Zap, Globe, MapPin } from 'lucide-react';
+import { TreePine, Zap, Globe, MapPin } from 'lucide-react';
 import { heroData } from '../generated/daemon-data';
 
 export function Hero() {
@@ -14,23 +14,23 @@ export function Hero() {
           transition={{ duration: 0.5 }}
           className="flex items-center justify-center gap-4 mb-3"
         >
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight">
-            <span className="text-gradient">DAEMON</span>
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-wide">
+            <span className="text-gradient">ROB CHUVALA</span>
           </h1>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand/10 border border-brand/20">
             <span className="w-2 h-2 rounded-full bg-success animate-pulse-slow" />
-            <span className="font-mono text-xs text-brand">LIVE</span>
+            <span className="font-sans text-xs text-brand font-medium">LIVE</span>
           </div>
         </motion.div>
 
-        {/* Subtitle */}
+        {/* Mission */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="font-heading text-lg text-text-secondary mb-3"
+          className="font-heading text-xl text-text-secondary mb-3 italic"
         >
-          <a href="https://northwoodssentinel.com" className="text-brand hover:underline">The Context You Keep</a>
+          I build the things that prove you are you.
         </motion.p>
 
         <motion.p
@@ -39,7 +39,7 @@ export function Hero() {
           transition={{ duration: 0.5, delay: 0.15 }}
           className="font-body text-lg text-text-secondary max-w-2xl mx-auto mb-5"
         >
-          Building open infrastructure for personal data sovereignty. Privacy-first, self-hosted, MIT licensed. Your data, your AI relationships, your context.
+          20 years in cybersecurity. Now building voice fidelity tools at the intersection of AI and human identity. Published from Wisconsin.
         </motion.p>
 
         {/* Location */}
@@ -51,7 +51,7 @@ export function Hero() {
         >
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand/10 border border-brand/30">
             <MapPin className="w-3.5 h-3.5 text-brand" />
-            <span className="font-mono text-xs text-brand">{location}</span>
+            <span className="font-sans text-xs text-brand font-medium">{location}</span>
           </div>
         </motion.div>
 
@@ -63,20 +63,20 @@ export function Hero() {
           className="flex flex-wrap items-center justify-center gap-2"
         >
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-secondary border border-border-subtle">
-            <Terminal className="w-3.5 h-3.5 text-text-tertiary" />
-            <span className="font-mono text-xs text-text-secondary">MCP</span>
+            <TreePine className="w-3.5 h-3.5 text-brand" />
+            <span className="font-sans text-xs text-text-secondary">NorthWoods Sentinel</span>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-secondary border border-border-subtle">
-            <Zap className="w-3.5 h-3.5 text-success" />
-            <span className="font-mono text-xs text-text-secondary">Real-time</span>
+            <Zap className="w-3.5 h-3.5 text-accent" />
+            <span className="font-sans text-xs text-text-secondary">Voice Fidelity</span>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-secondary border border-border-subtle">
-            <Globe className="w-3.5 h-3.5 text-accent" />
-            <span className="font-mono text-xs text-text-secondary">Public</span>
+            <Globe className="w-3.5 h-3.5 text-brand" />
+            <span className="font-sans text-xs text-text-secondary">Public</span>
           </div>
           <a
             href="/api/"
-            className="px-4 py-1.5 rounded-lg font-heading font-medium text-xs bg-bg-secondary hover:bg-bg-tertiary text-text-secondary border border-border-subtle transition-all duration-300"
+            className="px-4 py-1.5 rounded-lg font-sans font-medium text-xs bg-brand/10 hover:bg-brand/20 text-brand border border-brand/20 transition-all duration-300"
           >
             API Docs
           </a>
