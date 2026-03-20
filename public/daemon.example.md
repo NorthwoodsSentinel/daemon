@@ -4,7 +4,7 @@ Rob Chuvala. Wisconsin. 20 years in cybersecurity — pentesting, red team, inci
 I spent two decades learning how to break into systems. Then I spent a year learning how to stop breaking myself. The second problem turned out to be harder and more interesting.
 
 [MISSION]
-I build tools that detect when AI output stops sounding like the person it's supposed to represent. The problem isn't that AI writes badly — it writes fluently. The problem is it writes like nowhere. No region, no era, no professional tribe, no cultural fingerprint. That absence is a detection signal, and I'm building the detection layer.
+I build the thing that proves you're you.
 
 [TELOS]
 - P0: AI output is fluent but ungrounded — it passes grammar checks but fails identity checks. Nobody is building the detection layer between "grammatically correct" and "sounds like you."
