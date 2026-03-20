@@ -36,11 +36,13 @@ The product preserves. It doesn't clean.
 Central Time, Wisconsin
 
 [FAVORITE_BOOKS]
+- The Fountainhead — Ayn Rand
+- Atlas Shrugged — Ayn Rand
+- Way of the Peaceful Warrior — Dan Millman
+- The Autobiography of Malcolm X — Malcolm X and Alex Haley
+- The Prophet — Kahlil Gibran
 - The Body Keeps the Score — Bessel van der Kolk
-- Thinking, Fast and Slow — Daniel Kahneman
 - Flow: The Psychology of Optimal Experience — Mihaly Csikszentmihalyi
-- The Art of the Start — Guy Kawasaki
-- Stealing the Network series — various (infosec fiction that shaped a generation)
 
 [FAVORITE_MOVIES]
 - The Matrix (1999)
