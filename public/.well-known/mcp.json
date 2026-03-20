@@ -1,12 +1,12 @@
 {
-  "mcp_server": "https://mcp.daemon.saltedkeys.io",
+  "mcp_server": "https://mcp.daemon.robertchuvala.wtf",
   "transports": {
     "json-rpc": {
-      "url": "https://mcp.daemon.saltedkeys.io/",
+      "url": "https://mcp.daemon.robertchuvala.wtf/",
       "method": "POST"
     },
     "sse": {
-      "url": "https://mcp.daemon.saltedkeys.io/sse"
+      "url": "https://mcp.daemon.robertchuvala.wtf/sse"
     }
   },
   "tools": 14,

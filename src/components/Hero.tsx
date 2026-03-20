@@ -30,7 +30,7 @@ export function Hero() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="font-heading text-lg text-text-secondary mb-3"
         >
-          <a href="https://context-you-keep.ai" className="text-brand hover:underline">The Context You Keep</a>
+          <a href="https://northwoodssentinel.com" className="text-brand hover:underline">The Context You Keep</a>
         </motion.p>
 
         <motion.p
