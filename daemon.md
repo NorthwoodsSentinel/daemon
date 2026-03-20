@@ -23,11 +23,12 @@ The product preserves. It doesn't clean.
 [WHAT_IM_BUILDING]
 - voice-insurance — open source voice fidelity scoring tool. Detects when AI output doesn't sound like you. 10-layer audit, 140 idiom corpus, 25 known mangles, 45 embodied cliche detections.
 - Prufrock — CLI tool for indexical grounding analysis. Named for the Eliot poem about measuring life in coffee spoons. Measures whether text sounds like it came from somewhere specific or from the AI everywhere-nowhere.
+- AI drift detection framework — a co-regulation system built from real failures across a five-AI fleet. Flinch protocol forces AIs to act on counter-signals instead of suppressing them. Self-flinch flags mark excitement and absolutes inline. Two safe words with different functions — one stops machines, one catches the operator. Emotional priming defense slows AI output when the human is running hot. Landing procedure for safe exits from deep flow states. Two-gate output verification requires both local voice checks and external AI detection scoring. Every correction becomes a permanent rule, not a one-time fix. Eight battle-tested drift corrections, all from actual incidents, none from theory.
 - NorthWoods Sentinel — blog and lab. Essays on AI, identity, voice, and the detection problem. Published from Wisconsin.
-- A memoir — working title "Burn It Down, Grow It Back." 20 years of security, a career pivot at 45, five AI systems, and the version of myself I didn't know existed.
+- A memoir — working title "Burn It Down, Grow It Back." Twenty years in security, a career that almost killed me, a nervous system that learned to fight before it learned to feel, and the year I finally stopped performing and started listening. Five AI systems helped me see it. The memoir is the proof that the infrastructure works — written in my voice, verified by my own tools, about the version of myself I didn't know existed until I built the thing that could find him.
 
 [PREFERENCES]
-- Async first. Text over calls until trust is established.
+- Async first. Signal or Discord. Text over calls until trust is established.
 - Show don't argue. I lead with what I built, not what I believe.
 - Midwest pragmatism. If it works, ship it. If it doesn't, say so.
 - I write in my own voice and I'm building tools to prove it.
@@ -54,12 +55,13 @@ Central Time, Wisconsin
 - Voice fidelity detection — scoring AI output against human voice profiles
 - 13 failure modes of AI voice — taxonomy of how AI strips identity from text
 - Indexical grounding research — connecting sociolinguistics to AI detection
+- AI drift detection — co-regulation framework for personal AI fleets
 - Personal AI infrastructure — five-system fleet for cognitive enablement
 - Cybersecurity consulting — AI readiness assessments, NIST AI RMF, shadow AI detection
 
 [CONTACT]
 - Blog: https://northwoodssentinel.com
 - GitHub: https://github.com/NorthwoodsSentinel
-- Writing and tools published in public. DMs open.
+- Signal or Discord for direct contact. DMs open.
 
 *Last updated: 2026-03-20*
