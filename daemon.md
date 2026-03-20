@@ -4,7 +4,7 @@ Rob Chuvala. Wisconsin. 20 years in cybersecurity — pentesting, red team, inci
 I spent two decades learning how to break into systems. Then I spent a year learning how to stop breaking myself. The second problem turned out to be harder and more interesting.
 
 [MISSION]
-I build the thing that proves you're you.
+I build the things that prove you are you.
 
 [TELOS]
 - P0: AI output is fluent but ungrounded — it passes grammar checks but fails identity checks. Nobody is building the detection layer between "grammatically correct" and "sounds like you."
