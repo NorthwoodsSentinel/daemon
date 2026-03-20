@@ -45,11 +45,10 @@ Central Time, Wisconsin
 - Flow: The Psychology of Optimal Experience — Mihaly Csikszentmihalyi
 
 [FAVORITE_MOVIES]
-- The Matrix (1999)
-- Heat (1995)
-- Fight Club (1999)
-- Good Will Hunting (1997)
-- Swingers (1996)
+- Deadpool (all of them)
+- Logan (2017)
+- Chain Smoke (mountain biking film)
+- Rad (1986)
 
 [PROJECTS]
 - Voice fidelity detection — scoring AI output against human voice profiles
