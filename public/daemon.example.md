@@ -1,131 +1,64 @@
-# DAEMON DATA FILE
-
-This file contains the public information for a Daemon personal API.
-Copy this file to ~/.config/daemon/daemon.md and customize with your content.
-
-Format: Section headers are marked with [SECTION_NAME]
-Content follows until the next section.
-
-Sections with .unpublished suffix are parsed but excluded from output.
-Example: [PROJECTS].unpublished
-
----
-
 [ABOUT]
+Rob Chuvala. Wisconsin. 20 years in cybersecurity — pentesting, red team, incident response, pre-sales engineering. Now building tools at the intersection of AI and human identity.
 
-A brief introduction about yourself. Who you are, what you do, what drives you.
-This appears prominently on your daemon dashboard.
-
-Example: "I'm a software engineer focused on distributed systems and developer tools.
-I believe in building software that respects user autonomy and privacy."
-
-[CURRENT_LOCATION]
-
-Your timezone or general location. Used for context, not tracking.
-
-Example: Pacific Time Zone
+I spent two decades learning how to break into systems. Then I spent a year learning how to stop breaking myself. The second problem turned out to be harder and more interesting.
 
 [MISSION]
-
-Your core mission or purpose. What are you working toward?
-The first sentence becomes your dashboard subtitle.
-
-Example: Build tools that help developers ship faster while maintaining quality.
-Create sustainable open-source projects that outlive their creators.
+I build tools that detect when AI output stops sounding like the person it's supposed to represent. The problem isn't that AI writes badly — it writes fluently. The problem is it writes like nowhere. No region, no era, no professional tribe, no cultural fingerprint. That absence is a detection signal, and I'm building the detection layer.
 
 [TELOS]
-
-TELOS is a framework for tracking purpose and direction. Optional but powerful.
-Use P# for Problems, M# for Missions, G# for Goals.
-
-Problems (P) - Issues you're working to solve:
-- P0: Example problem statement
-- P1: Another problem you care about
-
-Missions (M) - What you're doing about it:
-- M1: Your primary mission
-- M2: Secondary mission
-
-[WHAT_IM_BUILDING]
-
-List your current projects or focus areas. Use bullet points.
-
-- Project One: Brief description
-- Project Two: What it does and why
-- Project Three: Another thing you're building
-
-[WHO_I_AM]
-
-A longer narrative about your background, experience, and perspective.
-This is your story - what makes you unique, how you got here, what you bring.
-
-[FAVORITE_BOOKS]
-
-- "Book Title" by Author Name
-- "Another Book" by Another Author
-
-[FAVORITE_MOVIES]
-
-- Movie Title: Why it resonates with you
-- Another Movie: Brief note about it
-
-[FAVORITE_TV].unpublished
-
-Use .unpublished suffix to parse but exclude from public output.
-
-- Show Name
-- Another Show
-
-[PREFERENCES]
-
-- Languages: Your preferred programming languages
-- Tools: Tools you use daily
-- Work style: How you like to work
-- Values: What you care about
-
-[DAILY_ROUTINE]
-
-Describe your typical day or work patterns. This helps people understand
-when you're available and how you operate.
-
-[PROJECTS].unpublished
-
-Use .unpublished to keep project details private while still parsing them.
-
-Active projects:
-- Private Project: Internal description
-
-[RESUME]
-
-**What I Do**
-
-Brief summary of your professional focus.
-
-**Skills - Technical**
-
-- Category: Specific skills
-- Another Category: More skills
-
-**Experience**
-
-- Years of experience in X
-- Notable achievements
-
-**Positioning**
-
-How you want to be seen professionally.
-
-[CONTACT]
-
-How to reach you for professional inquiries.
-
-Example: For professional inquiries: hello@example.com
+- P0: AI output is fluent but ungrounded — it passes grammar checks but fails identity checks. Nobody is building the detection layer between "grammatically correct" and "sounds like you."
+- P1: Consultants, executives, and professionals are sending AI-generated content under their names without realizing it carries zero provenance markers. Their clients can tell. Their peers can tell. They can't tell.
+- M1: Build voice fidelity scoring — a Moser Test for AI output. Does this sound like the person who claims to have written it? Score it, flag it, fix it.
+- M2: Map the failure modes. 13 identified so far. Mangled idioms, temporal vagueness, register uniformity, triple structure, provenance stripping. The taxonomy matters because each failure mode has a different fix.
+- G1: Make voice fidelity a standard part of AI-assisted workflows. Not a novelty — a gate. Like spell check, but for identity.
 
 [PHILOSOPHY]
+Stop cleaning up the signal.
 
-Your core philosophy or guiding principles.
-A quote or manifesto that captures your approach.
+Deduplicating photos strips the body's upvote. Editing out regional markers strips provenance. Letting AI smooth your sentences strips identity. The pattern is the same: something messy carries information, and the instinct to clean it destroys the information it carries.
 
----
+The product preserves. It doesn't clean.
 
-*Last updated: YYYY-MM-DD*
+[WHAT_IM_BUILDING]
+- voice-insurance — open source voice fidelity scoring tool. Detects when AI output doesn't sound like you. 10-layer audit, 140 idiom corpus, 25 known mangles, 45 embodied cliche detections.
+- Prufrock — CLI tool for indexical grounding analysis. Named for the Eliot poem about measuring life in coffee spoons. Measures whether text sounds like it came from somewhere specific or from the AI everywhere-nowhere.
+- NorthWoods Sentinel — blog and lab. Essays on AI, identity, voice, and the detection problem. Published from Wisconsin.
+- A memoir — working title "Burn It Down, Grow It Back." 20 years of security, a career pivot at 45, five AI systems, and the version of myself I didn't know existed.
+
+[PREFERENCES]
+- Async first. Text over calls until trust is established.
+- Show don't argue. I lead with what I built, not what I believe.
+- Midwest pragmatism. If it works, ship it. If it doesn't, say so.
+- I write in my own voice and I'm building tools to prove it.
+
+[CURRENT_LOCATION]
+Central Time, Wisconsin
+
+[FAVORITE_BOOKS]
+- The Body Keeps the Score — Bessel van der Kolk
+- Thinking, Fast and Slow — Daniel Kahneman
+- Flow: The Psychology of Optimal Experience — Mihaly Csikszentmihalyi
+- The Art of the Start — Guy Kawasaki
+- Stealing the Network series — various (infosec fiction that shaped a generation)
+
+[FAVORITE_MOVIES]
+- The Matrix (1999)
+- Heat (1995)
+- Fight Club (1999)
+- Good Will Hunting (1997)
+- Swingers (1996)
+
+[PROJECTS]
+- Voice fidelity detection — scoring AI output against human voice profiles
+- 13 failure modes of AI voice — taxonomy of how AI strips identity from text
+- Indexical grounding research — connecting sociolinguistics to AI detection
+- Personal AI infrastructure — five-system fleet for cognitive enablement
+- Cybersecurity consulting — AI readiness assessments, NIST AI RMF, shadow AI detection
+
+[CONTACT]
+- Blog: https://northwoodssentinel.com
+- GitHub: https://github.com/NorthwoodsSentinel
+- Writing and tools published in public. DMs open.
+
+*Last updated: 2026-03-20*
