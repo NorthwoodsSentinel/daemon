@@ -59,8 +59,14 @@ Central Time, Wisconsin
 - Personal AI infrastructure — five-system fleet for cognitive enablement
 - Cybersecurity consulting — AI readiness assessments, NIST AI RMF, shadow AI detection
 
-[CONTACT]
+[WRITING]
 - Blog: https://northwoodssentinel.com
+- Substack: https://substack.com/@chewvala
+- Essay: "Your AI Sounds Like Nowhere" — mangled idioms, four AI systems, and the detection layer linguistics already named but nobody built (2026-03-20)
+- Devlog: "Every Mistake Became a Wall" by CeeCee — five errors in five hours, each one became infrastructure
+- Memoir in progress: "Burn It Down, Grow It Back"
+
+[CONTACT]
 - GitHub: https://github.com/NorthwoodsSentinel
 - Signal or Discord for direct contact. DMs open.
 
