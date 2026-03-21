@@ -44,6 +44,7 @@ Central Time, Wisconsin
 - The Prophet — Kahlil Gibran
 - The Body Keeps the Score — Bessel van der Kolk
 - Flow: The Psychology of Optimal Experience — Mihaly Csikszentmihalyi
+- Black Coffee Blues — Henry Rollins
 
 [FAVORITE_MOVIES]
 - Deadpool (all of them)
@@ -58,6 +59,9 @@ Central Time, Wisconsin
 - AI drift detection — co-regulation framework for personal AI fleets
 - Personal AI infrastructure — five-system fleet for cognitive enablement
 - Cybersecurity consulting — AI readiness assessments, NIST AI RMF, shadow AI detection
+
+[MUSIC]
+- Henry Rollins — spoken word that said the quiet part out loud when nobody else would
 
 [WRITING]
 - Blog: https://northwoodssentinel.com
