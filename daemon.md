@@ -98,11 +98,13 @@ Central Time, Wisconsin
 - Blog: https://northwoodssentinel.com
 - Substack: https://substack.com/@chewvala
 - Essay: "Your AI Sounds Like Nowhere" — mangled idioms, four AI systems, and the detection layer linguistics already named but nobody built (2026-03-20)
+- Essay: "I Built a Forensic Instrument That Makes AI Sound Like Me" — voice fidelity scoring for consultants (2026-03-22)
 - Devlog: "Every Mistake Became a Wall" by CeeCee — five errors in five hours, each one became infrastructure
 - Memoir in progress: "Burn It Down, Grow It Back"
+- Prufrock product page: https://northwoodssentinel.com/flowlabs/prufrock
 
 [CONTACT]
 - GitHub: https://github.com/NorthwoodsSentinel
 - Signal or Discord for direct contact. DMs open.
 
-*Last updated: 2026-03-21*
+*Last updated: 2026-03-22*
