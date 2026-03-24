@@ -88,6 +88,19 @@ Central Time, Wisconsin
 - AI drift detection — co-regulation framework for personal AI fleets
 - Personal AI infrastructure — five-system fleet for cognitive enablement
 - Cybersecurity consulting — AI readiness assessments, NIST AI RMF, shadow AI detection
+- Soul — culturally-calibrated personal AI for a Finnish user. Claude Pro + MCP memory + system prompt built from cross-AI portrait extraction, direct user feedback, and deep cultural research. First known implementation of nationality-level AI behavioral calibration.
+- ConsultantOS — AI infrastructure that makes consultants sound like themselves. Voice fidelity + cultural calibration + persistent context. The methodology proven with Soul is the onboarding pipeline.
+
+[YOUTUBE]
+- Last In, First Out — https://www.youtube.com/@lastinfirstoutlife — The main channel. An experiment in living a fully embodied life of flow, building things that reduce friction, and staying honest about money, energy, and limits.
+- The Intentional Life Project — https://www.youtube.com/@TheIntentionalLifeProject — Slowing down, reconnecting with nature, choosing a life rooted in healing, purpose, and community. AI-assisted journaling, simple living, seasonal rhythms, emotional honesty.
+- RobLovesMTBs — https://www.youtube.com/@RoblovesMTBs — Midwest mountain biking trail reviews and riding. 53-year-old veteran of BMX, road, cyclocross, and single-track. Madison, WI based.
+
+[CULTURAL_AI_CALIBRATION]
+Built the first known culturally-calibrated personal AI on March 22, 2026. Discovered that every foundation model defaults to American communication norms — fill silence, perform warmth, affirm constantly, seek closure. These defaults are wrong for 7.5 billion non-Americans.
+Proved the methodology on a Finnish user: extracted context from existing AIs, recorded direct feedback, researched Finnish communication norms, shamanic traditions, and linguistic patterns, then built a system prompt calibrated to Finnish cultural firmware. Five phases, one morning, zero custom code.
+No published research exists on cultural communication norms in AI design. This is open territory.
+Looking for collaborators working on: nationality-level AI behavioral calibration, MCP memory persistence, voice fidelity tooling.
 
 [MUSIC]
 - Henry Rollins — spoken word that said the quiet part out loud when nobody else would
@@ -107,4 +120,4 @@ Central Time, Wisconsin
 - GitHub: https://github.com/NorthwoodsSentinel
 - Signal or Discord for direct contact. DMs open.
 
-*Last updated: 2026-03-22*
+*Last updated: 2026-03-23*
