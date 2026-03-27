@@ -185,3 +185,11 @@ MIT - Fork it, customize it, make it yours.
 <p align="center">
   <em>Part of the <a href="https://danielmiessler.com/projects">Unsupervised Learning</a> project ecosystem</em>
 </p>
+
+---
+
+## Northwoods Sentinel Labs
+
+Part of the [Northwoods Sentinel Labs](https://northwoodssentinel.com) ecosystem — open-source tools for human-centered AI.
+
+[Blog](https://northwoodssentinel.com) · [Substack](https://substack.com/@chewvala) · [GitHub](https://github.com/NorthwoodsSentinel)
