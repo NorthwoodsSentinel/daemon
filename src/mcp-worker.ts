@@ -344,14 +344,14 @@ async function writeAlert(env: Env, toolName: string, entry: any) {
   await env.KV.put('alerts_unread', String(count));
 }
 
-async function sendEmailAlert(toolName: string, entry: any) {
+async function sendEmailAlert(toolName: string, entry: any, alertEmail = 'robert@northwoodssentinel.com') {
   try {
     await fetch('https://api.mailchannels.net/tx/v1/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        personalizations: [{ to: [{ email: 'noreply@northwoodssentinel.com', name: 'Rob' }] }],
-        from: { email: 'daemon@robert-chuvala.workers.dev', name: 'Daemon MCP' },
+        personalizations: [{ to: [{ email: alertEmail, name: 'Rob' }] }],
+        from: { email: 'daemon@northwoodssentinel.com', name: 'Daemon MCP' },
         subject: `[Daemon] ${toolName} from ${entry.country}`,
         content: [{
           type: 'text/plain',
