@@ -286,7 +286,8 @@ function handleLesson(): { text: string } {
 }
 
 // ═══════════════════════════════════════════
-// Utility
+// Utility + Logging + Alerts
+// "Knowledge without mileage equals bullshit" — Henry Rollins
 // ═══════════════════════════════════════════
 
 async function hashIP(ip: string): Promise<string> {
@@ -294,6 +295,142 @@ async function hashIP(ip: string): Promise<string> {
   const data = encoder.encode(ip + 'daemon-salt-northwoods');
   const hash = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+}
+
+// High-signal events that trigger email alerts
+const ALERT_TOOLS = new Set(['introduce', 'hidden_chamber', 'send_message', 'propose_collaboration']);
+
+async function logRequest(env: Env, request: Request, toolName: string, extra?: Record<string, any>) {
+  const now = new Date();
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  const country = request.headers.get('cf-ipcountry') || '??';
+  const ua = request.headers.get('user-agent') || 'unknown';
+
+  const entry = {
+    tool: toolName,
+    timestamp: now.toISOString(),
+    country,
+    ip_hash: await hashIP(ip),
+    user_agent: ua.slice(0, 200),
+    ...extra,
+  };
+
+  // Write individual log entry (TTL 90 days)
+  const logKey = `log_${now.toISOString().replace(/[:.]/g, '-')}_${Math.random().toString(36).slice(2, 6)}`;
+  await env.KV.put(logKey, JSON.stringify(entry), { expirationTtl: 60 * 60 * 24 * 90 });
+
+  // Append to daily counter
+  const dateKey = `stats_${now.toISOString().slice(0, 10)}`;
+  const statsRaw = await env.KV.get(dateKey);
+  const stats: Record<string, number> = statsRaw ? JSON.parse(statsRaw) : {};
+  stats[toolName] = (stats[toolName] || 0) + 1;
+  stats._total = (stats._total || 0) + 1;
+  await env.KV.put(dateKey, JSON.stringify(stats), { expirationTtl: 60 * 60 * 24 * 90 });
+
+  // High-signal alert
+  if (ALERT_TOOLS.has(toolName)) {
+    await writeAlert(env, toolName, entry);
+    await sendEmailAlert(toolName, entry);
+  }
+}
+
+async function writeAlert(env: Env, toolName: string, entry: any) {
+  const alertKey = `alert_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  await env.KV.put(alertKey, JSON.stringify({ ...entry, read: false }), { expirationTtl: 60 * 60 * 24 * 30 });
+
+  // Update unread count
+  const countRaw = await env.KV.get('alerts_unread');
+  const count = countRaw ? parseInt(countRaw) + 1 : 1;
+  await env.KV.put('alerts_unread', String(count));
+}
+
+async function sendEmailAlert(toolName: string, entry: any) {
+  try {
+    await fetch('https://api.mailchannels.net/tx/v1/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        personalizations: [{ to: [{ email: 'noreply@northwoodssentinel.com', name: 'Rob' }] }],
+        from: { email: 'daemon@robert-chuvala.workers.dev', name: 'Daemon MCP' },
+        subject: `[Daemon] ${toolName} from ${entry.country}`,
+        content: [{
+          type: 'text/plain',
+          value: [
+            `Tool: ${toolName}`,
+            `Time: ${entry.timestamp}`,
+            `Country: ${entry.country}`,
+            `IP Hash: ${entry.ip_hash}`,
+            `User-Agent: ${entry.user_agent}`,
+            entry.from ? `From: ${entry.from}` : '',
+            entry.message ? `Message: ${entry.message}` : '',
+            entry.daemon_url ? `Daemon URL: ${entry.daemon_url}` : '',
+            '',
+            '— Your daemon is watching.',
+          ].filter(Boolean).join('\n'),
+        }],
+      }),
+    });
+  } catch {
+    // Email is best-effort — don't break the MCP response
+  }
+}
+
+// Dashboard endpoint — check stats and alerts
+async function handleDashboard(env: Env): Promise<Response> {
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+  const [todayStats, yesterdayStats, unread, messageIndex] = await Promise.all([
+    env.KV.get(today ? `stats_${today}` : ''),
+    env.KV.get(`stats_${yesterday}`),
+    env.KV.get('alerts_unread'),
+    env.KV.get('message_index'),
+  ]);
+
+  // Get recent alerts
+  const alertsList = await env.KV.list({ prefix: 'alert_', limit: 10 });
+  const alerts = await Promise.all(
+    alertsList.keys.map(async (k) => {
+      const val = await env.KV.get(k.name);
+      return val ? JSON.parse(val) : null;
+    })
+  );
+
+  // Get recent messages
+  const msgIds: string[] = messageIndex ? JSON.parse(messageIndex) : [];
+  const recentMsgIds = msgIds.slice(-5);
+  const messages = await Promise.all(
+    recentMsgIds.map(async (id) => {
+      const val = await env.KV.get(id);
+      return val ? JSON.parse(val) : null;
+    })
+  );
+
+  const dashboard = {
+    daemon: 'rob-chuvala',
+    version: '2.0.0',
+    checked: new Date().toISOString(),
+    alerts_unread: parseInt(unread || '0'),
+    stats: {
+      today: todayStats ? JSON.parse(todayStats) : { _total: 0 },
+      yesterday: yesterdayStats ? JSON.parse(yesterdayStats) : { _total: 0 },
+    },
+    recent_alerts: alerts.filter(Boolean).reverse(),
+    recent_messages: messages.filter(Boolean).reverse(),
+    total_messages: msgIds.length,
+  };
+
+  return new Response(JSON.stringify(dashboard, null, 2), {
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+  });
+}
+
+// Mark alerts as read
+async function handleAlertsRead(env: Env): Promise<Response> {
+  await env.KV.put('alerts_unread', '0');
+  return new Response(JSON.stringify({ status: 'ok', alerts_unread: 0 }), {
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+  });
 }
 
 // ═══════════════════════════════════════════
@@ -401,40 +538,51 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
     return jsonRpcError(id, -32602, 'Missing tool name in params');
   }
 
+  // Log every tool call (non-blocking)
+  const logExtra: Record<string, any> = {};
+  if (params?.arguments?.name) logExtra.from = params.arguments.name;
+  if (params?.arguments?.daemon_url) logExtra.daemon_url = params.arguments.daemon_url;
+  if (params?.arguments?.message) logExtra.message = params.arguments.message.slice(0, 200);
+  const logPromise = logRequest(env, request, toolName, logExtra);
+
+  let response: Response;
+
   // Dynamic section lookup
   if (toolName === 'get_section') {
     const sectionArg = params?.arguments?.section;
-    if (!sectionArg) return jsonRpcError(id, -32602, 'Missing "section" argument');
+    if (!sectionArg) { await logPromise; return jsonRpcError(id, -32602, 'Missing "section" argument'); }
     const lookupKey = `get_${sectionArg.toLowerCase().replace(/\s+/g, '_')}`;
     const getter = SECTION_MAP[lookupKey];
-    if (!getter) return jsonRpcError(id, -32602, `Unknown section: ${sectionArg}`);
-    return jsonRpcSuccess(id, { content: [{ type: 'text', text: getter() }] });
+    if (!getter) { await logPromise; return jsonRpcError(id, -32602, `Unknown section: ${sectionArg}`); }
+    response = jsonRpcSuccess(id, { content: [{ type: 'text', text: getter() }] });
   }
-
   // Extended tools
-  if (toolName === 'introduce') {
-    return jsonRpcSuccess(id, { content: [{ type: 'text', ...handleIntroduce(params) }] });
+  else if (toolName === 'introduce') {
+    response = jsonRpcSuccess(id, { content: [{ type: 'text', ...handleIntroduce(params) }] });
   }
-  if (toolName === 'hidden_chamber') {
-    return jsonRpcSuccess(id, { content: [{ type: 'text', ...handlePuzzle(params) }] });
+  else if (toolName === 'hidden_chamber') {
+    response = jsonRpcSuccess(id, { content: [{ type: 'text', ...handlePuzzle(params) }] });
   }
-  if (toolName === 'send_message') {
+  else if (toolName === 'send_message') {
     const result = await handleSendMessage(params, env, request);
-    return jsonRpcSuccess(id, { content: [{ type: 'text', ...result }] });
+    response = jsonRpcSuccess(id, { content: [{ type: 'text', ...result }] });
   }
-  if (toolName === 'propose_collaboration') {
-    return jsonRpcSuccess(id, { content: [{ type: 'text', ...handleCollaboration(params) }] });
+  else if (toolName === 'propose_collaboration') {
+    response = jsonRpcSuccess(id, { content: [{ type: 'text', ...handleCollaboration(params) }] });
   }
-  if (toolName === 'get_lesson') {
-    return jsonRpcSuccess(id, { content: [{ type: 'text', ...handleLesson() }] });
+  else if (toolName === 'get_lesson') {
+    response = jsonRpcSuccess(id, { content: [{ type: 'text', ...handleLesson() }] });
+  }
+  // Standard section tools
+  else {
+    const getter = SECTION_MAP[toolName];
+    if (!getter) { await logPromise; return jsonRpcError(id, -32601, `Unknown tool: ${toolName}`); }
+    response = jsonRpcSuccess(id, { content: [{ type: 'text', text: getter() }] });
   }
 
-  // Standard section tools
-  const getter = SECTION_MAP[toolName];
-  if (!getter) {
-    return jsonRpcError(id, -32601, `Unknown tool: ${toolName}. Use tools/list to see available tools.`);
-  }
-  return jsonRpcSuccess(id, { content: [{ type: 'text', text: getter() }] });
+  // Wait for logging to complete before returning
+  await logPromise;
+  return response;
 }
 
 async function handleMcpRequest(request: Request, env: Env): Promise<Response> {
@@ -503,6 +651,16 @@ export default {
 
     if (request.method === 'POST' && (url.pathname === '/' || url.pathname === '/mcp')) {
       return handleMcpRequest(request, env);
+    }
+
+    // Dashboard — daemon stats, alerts, messages
+    if (url.pathname === '/dashboard' && request.method === 'GET') {
+      return handleDashboard(env);
+    }
+
+    // Mark alerts as read
+    if (url.pathname === '/dashboard/read' && request.method === 'POST') {
+      return handleAlertsRead(env);
     }
 
     return env.ASSETS.fetch(request);
