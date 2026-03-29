@@ -1,5 +1,10 @@
 name = "daemon"
+main = "src/mcp-worker.ts"
 compatibility_date = "2025-08-20"
 
 [assets]
 directory = "./dist"
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "single-page-application"
+run_worker_first = true
