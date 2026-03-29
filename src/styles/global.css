@@ -1,49 +1,57 @@
 @import "tailwindcss";
 
-/* Google Fonts - Serif for NWS aesthetic */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap');
+/* Google Fonts - NWS Unified Design System
+ * "No change, no chance." — Henry Rollins
+ */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
 
-/* Tailwind v4 Theme - NorthWoods Sentinel / Forest Lodge */
+/* Tailwind v4 Theme - NWS Unified Design System
+ * Canonical palette from nws-design-system.md */
 @theme {
-  /* Brand Colors - Forest Green */
-  --color-brand: #4a5240;
-  --color-brand-light: #5c6650;
-  --color-brand-dark: #3a4232;
-  --color-brand-glow: rgba(74, 82, 64, 0.3);
+  /* Brand Colors - Forest Green (canonical: #1B3B2F) */
+  --color-brand: #1B3B2F;
+  --color-brand-light: #4A773C;
+  --color-brand-dark: #0b1a14;
+  --color-brand-glow: rgba(27, 59, 47, 0.3);
 
-  /* Accent - Warm Gold/Sun */
-  --color-accent: #c4a265;
-  --color-accent-light: #d4b87a;
+  /* Accent - Northwoods Gold (canonical: #C9A84C) */
+  --color-accent: #C9A84C;
+  --color-accent-light: #D4A574;
   --color-accent-dark: #a8864a;
 
   /* Secondary Accent - Earth tones */
-  --color-success: #6b8f4a;
-  --color-warning: #c4a265;
+  --color-success: #4A773C;
+  --color-warning: #D4A574;
   --color-error: #a65a4a;
 
-  /* Background - Warm Cream & Olive */
-  --color-bg-primary: #f5f0e8;
-  --color-bg-secondary: #ebe5d9;
-  --color-bg-tertiary: #e0d9ca;
+  /* Background - Warm Cream (canonical: #F5E6C8) */
+  --color-bg-primary: #F5E6C8;
+  --color-bg-secondary: #F5F3EF;
+  --color-bg-tertiary: #ebe5d9;
   --color-bg-elevated: #ffffff;
 
-  /* Text */
-  --color-text-primary: #2c2c2c;
-  --color-text-secondary: #4a4a4a;
-  --color-text-tertiary: #7a7a6e;
+  /* Text (canonical deep forest + bark) */
+  --color-text-primary: #1d2016;
+  --color-text-secondary: #5C4B3C;
+  --color-text-tertiary: #A9B0A6;
 
   /* Borders */
-  --color-border-subtle: rgba(74, 82, 64, 0.15);
-  --color-border-default: rgba(74, 82, 64, 0.25);
-  --color-border-emphasis: rgba(74, 82, 64, 0.4);
+  --color-border-subtle: rgba(27, 59, 47, 0.15);
+  --color-border-default: rgba(27, 59, 47, 0.25);
+  --color-border-emphasis: rgba(27, 59, 47, 0.4);
 
-  /* Fonts - Serif forward */
+  /* Supplementary */
+  --color-sage: #6B9E8B;
+  --color-stone: #A9B0A6;
+  --color-copper: #D4A574;
+
+  /* Fonts - Serif forward, DM Sans for UI (Inter is banned) */
   --font-display: 'Playfair Display', Georgia, serif;
-  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-heading: 'Source Serif 4', Georgia, serif;
   --font-body: 'Source Serif 4', Georgia, serif;
-  --font-accent: 'Inter', system-ui, sans-serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  --font-accent: 'DM Sans', system-ui, sans-serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
 }
 
 /* Base Styles */
@@ -131,11 +139,11 @@ body {
 
 /* Glow Effect - Warm instead of neon */
 .glow {
-  box-shadow: 0 0 40px rgba(196, 162, 101, 0.2);
+  box-shadow: 0 0 40px rgba(201, 168, 76, 0.2);
 }
 
 .glow-text {
-  text-shadow: 0 0 40px rgba(196, 162, 101, 0.3);
+  text-shadow: 0 0 40px rgba(201, 168, 76, 0.3);
 }
 
 /* Animated Background - Subtle warm orbs instead of neon */
@@ -150,14 +158,15 @@ body {
 .bg-orb-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(74, 82, 64, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(27, 59, 47, 0.15) 0%, transparent 70%);
   animation: orb1-float 12s ease-in-out infinite;
 }
 
 .bg-orb-2 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(196, 162, 101, 0.1) 0%, transparent 70%);
+  /* "Courage is not the absence of despair; it is the capacity to move ahead in spite of despair." */
+  background: radial-gradient(circle, rgba(201, 168, 76, 0.1) 0%, transparent 70%);
   animation: orb2-float 15s ease-in-out infinite;
 }
 
@@ -199,8 +208,8 @@ body {
 /* Grid background - subtle warm */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(74, 82, 64, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(74, 82, 64, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(27, 59, 47, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 59, 47, 0.04) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
