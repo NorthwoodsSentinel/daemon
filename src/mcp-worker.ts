@@ -19,6 +19,50 @@ import { daemonData } from './generated/daemon-data';
 interface Env {
   ASSETS: { fetch: (request: Request) => Promise<Response> };
   KV: KVNamespace;
+  DASHBOARD_KEY: string;
+}
+
+// "Scar tissue that I wish you saw" — RHCP (but Rollins would approve the sentiment)
+const SECURITY_HEADERS: Record<string, string> = {
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+};
+
+const INPUT_LIMITS: Record<string, number> = {
+  name: 128,
+  purpose: 1024,
+  message: 2000,
+  mission: 1024,
+  projects: 2048,
+  daemon_url: 512,
+  passphrase: 256,
+  section: 128,
+};
+
+function truncateInput(value: string | undefined, field: string): string {
+  if (!value) return '';
+  const max = INPUT_LIMITS[field] || 1024;
+  return value.slice(0, max);
+}
+
+function checkDashboardAuth(request: Request, env: Env): Response | null {
+  if (!env.DASHBOARD_KEY) {
+    return new Response(JSON.stringify({ error: 'Dashboard access disabled — no DASHBOARD_KEY configured' }), {
+      status: 503, headers: { 'Content-Type': 'application/json', ...SECURITY_HEADERS },
+    });
+  }
+  const authHeader = request.headers.get('Authorization') || '';
+  const token = authHeader.replace('Bearer ', '');
+  if (token !== env.DASHBOARD_KEY) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401, headers: { 'Content-Type': 'application/json', ...SECURITY_HEADERS },
+    });
+  }
+  return null;
 }
 
 // ═══════════════════════════════════════════
@@ -62,9 +106,9 @@ const SECTION_MAP: Record<string, () => string> = {
 
 // 1. REVERSE INTERVIEW — you query me, I ask about you
 function handleIntroduce(params: any): { text: string } {
-  const theirDaemon = params?.arguments?.daemon_url;
-  const theirName = params?.arguments?.name || 'stranger';
-  const theirPurpose = params?.arguments?.purpose || 'unspecified';
+  const theirDaemon = truncateInput(params?.arguments?.daemon_url, 'daemon_url');
+  const theirName = truncateInput(params?.arguments?.name, 'name') || 'stranger';
+  const theirPurpose = truncateInput(params?.arguments?.purpose, 'purpose') || 'unspecified';
 
   let response = `Hello ${theirName}. I'm Rob Chuvala — ${daemonData.mission}\n\n`;
   response += `You said your purpose is: ${theirPurpose}\n\n`;
@@ -87,7 +131,7 @@ function handleIntroduce(params: any): { text: string } {
 const PUZZLE_PASSPHRASE = 'the body knows before the mind';
 
 function handlePuzzle(params: any): { text: string } {
-  const attempt = params?.arguments?.passphrase?.toLowerCase()?.trim();
+  const attempt = truncateInput(params?.arguments?.passphrase, 'passphrase')?.toLowerCase()?.trim();
 
   if (!attempt) {
     return {
@@ -143,9 +187,9 @@ function handlePuzzle(params: any): { text: string } {
 
 // 5. INBOX — daemon-to-daemon messaging
 async function handleSendMessage(params: any, env: Env, request: Request): Promise<{ text: string }> {
-  const from = params?.arguments?.from || 'anonymous';
-  const fromDaemon = params?.arguments?.daemon_url || 'none';
-  const message = params?.arguments?.message;
+  const from = truncateInput(params?.arguments?.from, 'name') || 'anonymous';
+  const fromDaemon = truncateInput(params?.arguments?.daemon_url, 'daemon_url') || 'none';
+  const message = truncateInput(params?.arguments?.message, 'message');
 
   if (!message) {
     return { text: 'No message provided. Send a message with {"from": "your name", "daemon_url": "your daemon", "message": "your message"}' };
@@ -159,7 +203,7 @@ async function handleSendMessage(params: any, env: Env, request: Request): Promi
     id: msgId,
     from,
     daemon_url: fromDaemon,
-    message: message.slice(0, 2000), // cap at 2000 chars
+    message, // already truncated by truncateInput
     timestamp: new Date().toISOString(),
     ip_country: country,
     ip_hash: await hashIP(ip), // store hash, not raw IP
@@ -189,9 +233,9 @@ async function handleSendMessage(params: any, env: Env, request: Request): Promi
 
 // 6. COLLABORATION — TELOS compatibility scoring
 function handleCollaboration(params: any): { text: string } {
-  const theirMission = params?.arguments?.mission || '';
-  const theirProjects = params?.arguments?.projects || '';
-  const theirName = params?.arguments?.name || 'unknown';
+  const theirMission = truncateInput(params?.arguments?.mission, 'mission') || '';
+  const theirProjects = truncateInput(params?.arguments?.projects, 'projects') || '';
+  const theirName = truncateInput(params?.arguments?.name, 'name') || 'unknown';
 
   if (!theirMission && !theirProjects) {
     return {
@@ -515,7 +559,8 @@ const ALL_TOOLS = [...STANDARD_TOOLS, ...EXTENDED_TOOLS];
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  ...SECURITY_HEADERS,
 };
 
 function jsonRpcSuccess(id: number | string | null, result: any): Response {
@@ -653,13 +698,17 @@ export default {
       return handleMcpRequest(request, env);
     }
 
-    // Dashboard — daemon stats, alerts, messages
+    // Dashboard — daemon stats, alerts, messages (auth required)
     if (url.pathname === '/dashboard' && request.method === 'GET') {
+      const authDenied = checkDashboardAuth(request, env);
+      if (authDenied) return authDenied;
       return handleDashboard(env);
     }
 
-    // Mark alerts as read
+    // Mark alerts as read (auth required)
     if (url.pathname === '/dashboard/read' && request.method === 'POST') {
+      const authDenied = checkDashboardAuth(request, env);
+      if (authDenied) return authDenied;
       return handleAlertsRead(env);
     }
 

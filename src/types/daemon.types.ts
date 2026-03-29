@@ -22,6 +22,12 @@ export interface DaemonSections {
   RESUME?: string;
   CONTACT?: string;
   PHILOSOPHY?: string;
+  FLOW_LAWS?: string;
+  BREADCRUMBS?: string;
+  MUSIC?: string;
+  WRITING?: string;
+  YOUTUBE?: string;
+  CULTURAL_AI_CALIBRATION?: string;
 }
 
 /**
@@ -44,6 +50,12 @@ export interface DaemonData {
   resume: string;
   contact: string;
   lastUpdated: string;
+  flowLaws: string[];
+  breadcrumbs: string;
+  music: string[];
+  writing: string[];
+  youtube: string[];
+  culturalAiCalibration: string;
 }
 
 /**

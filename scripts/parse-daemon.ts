@@ -89,6 +89,22 @@ function parseList(content: string | undefined): string[] {
 }
 
 /**
+ * Extract numbered list items (1. Foo, 2. Bar)
+ */
+function parseNumberedList(content: string | undefined): string[] {
+	if (!content) return [];
+	const items: string[] = [];
+	for (const line of content.split("\n")) {
+		const trimmed = line.trim();
+		const match = trimmed.match(/^\d+\.\s+(.+)/);
+		if (match) {
+			items.push(match[1]);
+		}
+	}
+	return items;
+}
+
+/**
  * Parse TELOS section into structured items
  */
 function parseTelos(content: string | undefined): string[] {
@@ -134,6 +150,12 @@ function transformToDaemonData(sections: DaemonSections, rawContent: string): Da
 		resume: sections.RESUME || "",
 		contact: sections.CONTACT || "",
 		lastUpdated: parseLastUpdated(rawContent),
+		flowLaws: parseNumberedList(sections.FLOW_LAWS),
+		breadcrumbs: sections.BREADCRUMBS || "",
+		music: parseList(sections.MUSIC),
+		writing: parseList(sections.WRITING),
+		youtube: parseList(sections.YOUTUBE),
+		culturalAiCalibration: sections.CULTURAL_AI_CALIBRATION || "",
 	};
 }
 

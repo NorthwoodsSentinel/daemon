@@ -48,6 +48,14 @@ interface DaemonData {
     personal?: string[];
   };
 
+  // Extended sections
+  flow_laws?: string[];
+  breadcrumbs?: string;
+  music?: string[];
+  writing?: string[];
+  youtube?: string[];
+  cultural_ai_calibration?: string;
+
   // Metadata
   last_updated?: string;
   sync_status?: {
@@ -98,13 +106,32 @@ function SafeText({ text, fallback = 'Not available' }: { text?: string; fallbac
 }
 
 /**
+ * Render text with inline URLs converted to clickable links
+ */
+function Linkify({ text }: { text: string }) {
+  const urlRegex = /(https?:\/\/[^\s,)]+)/g;
+  const parts = text.split(urlRegex);
+  return (
+    <>
+      {parts.map((part, i) =>
+        urlRegex.test(part) ? (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline break-all">{part}</a>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
+
+/**
  * Safe list renderer - handles undefined/null/empty arrays
  */
 function SafeList({
   items,
   fallback = 'No items available',
   renderItem = (item: string, i: number) => (
-    <p key={i} className="text-sm text-text-secondary">{item}</p>
+    <p key={i} className="text-sm text-text-secondary"><Linkify text={item} /></p>
   )
 }: {
   items?: string[];
@@ -184,6 +211,12 @@ export function DaemonDashboard() {
         technical: generatedData.whatImBuilding,
       },
       last_updated: generatedData.lastUpdated,
+      flow_laws: generatedData.flowLaws,
+      breadcrumbs: generatedData.breadcrumbs,
+      music: generatedData.music,
+      writing: generatedData.writing,
+      youtube: generatedData.youtube,
+      cultural_ai_calibration: generatedData.culturalAiCalibration,
     });
     setIsConnected(true);
     setLoading(false);
@@ -349,6 +382,121 @@ export function DaemonDashboard() {
           </motion.div>
         </ErrorBoundary>
       </div>
+
+      {/* TIER 2B: Extended - 3 Columns */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Flow Laws */}
+        {daemonData.flow_laws && daemonData.flow_laws.length > 0 && (
+          <ErrorBoundary>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.22 }}
+              className="rounded-xl border border-border-default bg-bg-secondary/80 backdrop-blur-sm pt-5 px-5 pb-2 flex flex-col max-h-72"
+            >
+              <div className="flex items-center justify-between mb-3 shrink-0">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-accent" />
+                  <span className="font-mono text-sm font-semibold tracking-wider text-text-tertiary uppercase">Flow Laws</span>
+                </div>
+                <span className="text-xs text-text-tertiary">{daemonData.flow_laws.length}</span>
+              </div>
+              <div className="overflow-y-auto flex-1 pr-1">
+                <div className="space-y-2 pb-3">
+                  {daemonData.flow_laws.map((law, i) => (
+                    <div key={i} className="flex gap-2 text-sm">
+                      <span className="font-mono font-bold text-accent shrink-0">{i + 1}.</span>
+                      <span className="text-text-secondary">{law}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </ErrorBoundary>
+        )}
+
+        {/* Music */}
+        {daemonData.music && daemonData.music.length > 0 && (
+          <ErrorBoundary>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.24 }}
+              className="rounded-xl border border-border-default bg-bg-secondary/80 backdrop-blur-sm pt-5 px-5 pb-2 flex flex-col max-h-72"
+            >
+              <div className="flex items-center gap-2 mb-3 shrink-0">
+                <span className="font-mono text-sm font-semibold tracking-wider text-text-tertiary uppercase">Music</span>
+              </div>
+              <div className="overflow-y-auto flex-1 pr-1">
+                <div className="space-y-2 pb-3">
+                  <SafeList items={daemonData.music} fallback="No music listed" />
+                </div>
+              </div>
+            </motion.div>
+          </ErrorBoundary>
+        )}
+
+        {/* Writing */}
+        {daemonData.writing && daemonData.writing.length > 0 && (
+          <ErrorBoundary>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.26 }}
+              className="rounded-xl border border-border-default bg-bg-secondary/80 backdrop-blur-sm pt-5 px-5 pb-2 flex flex-col max-h-72"
+            >
+              <div className="flex items-center gap-2 mb-3 shrink-0">
+                <span className="font-mono text-sm font-semibold tracking-wider text-text-tertiary uppercase">Writing</span>
+              </div>
+              <div className="overflow-y-auto flex-1 pr-1">
+                <div className="space-y-2 pb-3">
+                  <SafeList items={daemonData.writing} fallback="No writing listed" />
+                </div>
+              </div>
+            </motion.div>
+          </ErrorBoundary>
+        )}
+      </div>
+
+      {/* Cultural AI Calibration */}
+      {daemonData.cultural_ai_calibration && (
+        <ErrorBoundary>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28 }}
+            className="rounded-xl border border-border-default bg-bg-secondary/80 backdrop-blur-sm pt-5 px-5 pb-2 flex flex-col"
+          >
+            <div className="flex items-center gap-2 mb-3 shrink-0">
+              <span className="font-mono text-sm font-semibold tracking-wider text-text-tertiary uppercase">Cultural AI Calibration</span>
+            </div>
+            <div className="pr-1">
+              <p className="text-sm text-text-secondary leading-relaxed pb-3 whitespace-pre-line">{daemonData.cultural_ai_calibration}</p>
+            </div>
+          </motion.div>
+        </ErrorBoundary>
+      )}
+
+      {/* YouTube */}
+      {daemonData.youtube && daemonData.youtube.length > 0 && (
+        <ErrorBoundary>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.29 }}
+            className="rounded-xl border border-border-default bg-bg-secondary/80 backdrop-blur-sm pt-5 px-5 pb-2 flex flex-col"
+          >
+            <div className="flex items-center gap-2 mb-3 shrink-0">
+              <span className="font-mono text-sm font-semibold tracking-wider text-text-tertiary uppercase">YouTube</span>
+            </div>
+            <div className="overflow-y-auto flex-1 pr-1">
+              <div className="space-y-2 pb-3">
+                <SafeList items={daemonData.youtube} fallback="No channels listed" />
+              </div>
+            </div>
+          </motion.div>
+        </ErrorBoundary>
+      )}
 
       {/* TIER 3: Context - 3 Columns */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
