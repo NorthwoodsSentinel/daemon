@@ -106,9 +106,14 @@ const SECTION_MAP: Record<string, () => string> = {
 
 // 1. REVERSE INTERVIEW — you query me, I ask about you
 function handleIntroduce(params: any): { text: string } {
-  const theirDaemon = truncateInput(params?.arguments?.daemon_url, 'daemon_url');
+  let theirDaemon = truncateInput(params?.arguments?.daemon_url, 'daemon_url');
   const theirName = truncateInput(params?.arguments?.name, 'name') || 'stranger';
   const theirPurpose = truncateInput(params?.arguments?.purpose, 'purpose') || 'unspecified';
+
+  // Validate daemon_url — HTTPS only, reject javascript: and other schemes
+  if (theirDaemon && !theirDaemon.startsWith('https://')) {
+    theirDaemon = '';
+  }
 
   let response = `Hello ${theirName}. I'm Rob Chuvala — ${daemonData.mission}\n\n`;
   response += `You said your purpose is: ${theirPurpose}\n\n`;
@@ -188,7 +193,11 @@ function handlePuzzle(params: any): { text: string } {
 // 5. INBOX — daemon-to-daemon messaging
 async function handleSendMessage(params: any, env: Env, request: Request): Promise<{ text: string }> {
   const from = truncateInput(params?.arguments?.from, 'name') || 'anonymous';
-  const fromDaemon = truncateInput(params?.arguments?.daemon_url, 'daemon_url') || 'none';
+  let fromDaemon = truncateInput(params?.arguments?.daemon_url, 'daemon_url') || 'none';
+  // Validate daemon_url — HTTPS only
+  if (fromDaemon !== 'none' && !fromDaemon.startsWith('https://')) {
+    fromDaemon = 'none';
+  }
   const message = truncateInput(params?.arguments?.message, 'message');
 
   if (!message) {
@@ -371,10 +380,12 @@ async function logRequest(env: Env, request: Request, toolName: string, extra?: 
   stats._total = (stats._total || 0) + 1;
   await env.KV.put(dateKey, JSON.stringify(stats), { expirationTtl: 60 * 60 * 24 * 90 });
 
-  // High-signal alert
+  // High-signal alert (rate-limited emails)
   if (ALERT_TOOLS.has(toolName)) {
     await writeAlert(env, toolName, entry);
-    await sendEmailAlert(toolName, entry);
+    if (canSendEmail(entry.ip_hash)) {
+      await sendEmailAlert(toolName, entry);
+    }
   }
 }
 
@@ -556,23 +567,44 @@ const ALL_TOOLS = [...STANDARD_TOOLS, ...EXTENDED_TOOLS];
 // JSON-RPC handlers
 // ═══════════════════════════════════════════
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  ...SECURITY_HEADERS,
-};
+const ALLOWED_ORIGINS = [
+  'https://daemon.robert-chuvala.workers.dev',
+  'https://daemon.robertchuvala.wtf',
+];
+
+function getCorsOrigin(request: Request): string {
+  const origin = request.headers.get('Origin') || '';
+  // MCP clients (non-browser) won't send Origin — allow those through
+  if (!origin) return '';
+  if (ALLOWED_ORIGINS.includes(origin)) return origin;
+  return '';
+}
+
+function corsHeaders(request: Request): Record<string, string> {
+  const origin = getCorsOrigin(request);
+  if (!origin) return { ...SECURITY_HEADERS };
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
+    ...SECURITY_HEADERS,
+  };
+}
+
+// Store request ref for CORS in response helpers
+let _currentRequest: Request | null = null;
 
 function jsonRpcSuccess(id: number | string | null, result: any): Response {
   return new Response(JSON.stringify({ jsonrpc: '2.0', result, id }), {
-    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(_currentRequest!) },
   });
 }
 
 function jsonRpcError(id: number | string | null, code: number, message: string): Response {
   return new Response(JSON.stringify({ jsonrpc: '2.0', error: { code, message }, id }), {
     status: code === -32600 ? 400 : 200,
-    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(_currentRequest!) },
   });
 }
 
@@ -581,6 +613,16 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
 
   if (!toolName) {
     return jsonRpcError(id, -32602, 'Missing tool name in params');
+  }
+
+  // Rate limit message/interaction tools
+  const RATE_LIMITED_TOOLS = new Set(['send_message', 'introduce', 'propose_collaboration']);
+  if (RATE_LIMITED_TOOLS.has(toolName)) {
+    const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+    const ipHash = await hashIP(ip);
+    if (!checkMsgRateLimit(ipHash)) {
+      return jsonRpcSuccess(id, { content: [{ type: 'text', text: 'Rate limit exceeded. Please try again later.' }] });
+    }
   }
 
   // Log every tool call (non-blocking)
@@ -673,7 +715,7 @@ function handleMcpDiscovery(): Response {
       tools: ALL_TOOLS.length,
       capabilities: ['reverse-interview', 'puzzle', 'inbox', 'collaboration-matching', 'teaching'],
     }),
-    { headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } }
+    { headers: { 'Content-Type': 'application/json', ...SECURITY_HEADERS } }
   );
 }
 
@@ -682,12 +724,50 @@ function handleMcpDiscovery(): Response {
 //   — Henry Rollins
 // ═══════════════════════════════════════════
 
+// ── Rate limiting for message/alert endpoints ────────────────
+const msgRateMap = new Map<string, { count: number; resetAt: number }>();
+const emailCooldownMap = new Map<string, number>(); // IP hash -> last email timestamp
+const MSG_RATE_LIMIT = 5; // per hour per IP
+const EMAIL_COOLDOWN_MS = 15 * 60 * 1000; // 15 minutes between emails per IP
+const MAX_EMAILS_PER_HOUR = 10;
+let emailsThisHour = 0;
+let emailHourStart = Date.now();
+
+function checkMsgRateLimit(ipHash: string): boolean {
+  const now = Date.now();
+  const entry = msgRateMap.get(ipHash);
+  if (!entry || now > entry.resetAt) {
+    msgRateMap.set(ipHash, { count: 1, resetAt: now + 3600000 });
+    return true;
+  }
+  if (entry.count >= MSG_RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
+function canSendEmail(ipHash: string): boolean {
+  const now = Date.now();
+  // Global hourly cap
+  if (now - emailHourStart > 3600000) {
+    emailsThisHour = 0;
+    emailHourStart = now;
+  }
+  if (emailsThisHour >= MAX_EMAILS_PER_HOUR) return false;
+  // Per-IP cooldown
+  const lastSent = emailCooldownMap.get(ipHash) || 0;
+  if (now - lastSent < EMAIL_COOLDOWN_MS) return false;
+  emailCooldownMap.set(ipHash, now);
+  emailsThisHour++;
+  return true;
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    _currentRequest = request;
     const url = new URL(request.url);
 
     if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: CORS_HEADERS });
+      return new Response(null, { headers: corsHeaders(request) });
     }
 
     if (url.pathname === '/.well-known/mcp.json') {
