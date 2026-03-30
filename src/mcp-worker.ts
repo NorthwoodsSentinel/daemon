@@ -20,6 +20,8 @@ interface Env {
   ASSETS: { fetch: (request: Request) => Promise<Response> };
   KV: KVNamespace;
   DASHBOARD_KEY: string;
+  IP_SALT?: string;
+  PUZZLE_PASSPHRASE?: string;
 }
 
 // "Scar tissue that I wish you saw" — RHCP (but Rollins would approve the sentiment)
@@ -47,6 +49,10 @@ function truncateInput(value: string | undefined, field: string): string {
   if (!value) return '';
   const max = INPUT_LIMITS[field] || 1024;
   return value.slice(0, max);
+}
+
+function stripHtml(s: string): string {
+  return s.replace(/<[^>]*>/g, '');
 }
 
 function checkDashboardAuth(request: Request, env: Env): Response | null {
@@ -107,8 +113,8 @@ const SECTION_MAP: Record<string, () => string> = {
 // 1. REVERSE INTERVIEW — you query me, I ask about you
 function handleIntroduce(params: any): { text: string } {
   let theirDaemon = truncateInput(params?.arguments?.daemon_url, 'daemon_url');
-  const theirName = truncateInput(params?.arguments?.name, 'name') || 'stranger';
-  const theirPurpose = truncateInput(params?.arguments?.purpose, 'purpose') || 'unspecified';
+  const theirName = stripHtml(truncateInput(params?.arguments?.name, 'name') || 'stranger');
+  const theirPurpose = stripHtml(truncateInput(params?.arguments?.purpose, 'purpose') || 'unspecified');
 
   // Validate daemon_url — HTTPS only, reject javascript: and other schemes
   if (theirDaemon && !theirDaemon.startsWith('https://')) {
@@ -133,9 +139,9 @@ function handleIntroduce(params: any): { text: string } {
 
 // 3. PUZZLE — "Wheat Kings" hidden content
 // "Sundown in the Paris of the prairies" — The Tragically Hip, Wheat Kings
-const PUZZLE_PASSPHRASE = 'the body knows before the mind';
 
-function handlePuzzle(params: any): { text: string } {
+function handlePuzzle(params: any, env: Env): { text: string } {
+  const passphrase = (env.PUZZLE_PASSPHRASE || 'the body knows before the mind').toLowerCase().trim();
   const attempt = truncateInput(params?.arguments?.passphrase, 'passphrase')?.toLowerCase()?.trim();
 
   if (!attempt) {
@@ -153,7 +159,7 @@ function handlePuzzle(params: any): { text: string } {
     };
   }
 
-  if (attempt === PUZZLE_PASSPHRASE) {
+  if (attempt === passphrase) {
     return {
       text: [
         '██ HIDDEN CHAMBER UNLOCKED ██',
@@ -192,13 +198,14 @@ function handlePuzzle(params: any): { text: string } {
 
 // 5. INBOX — daemon-to-daemon messaging
 async function handleSendMessage(params: any, env: Env, request: Request): Promise<{ text: string }> {
-  const from = truncateInput(params?.arguments?.from, 'name') || 'anonymous';
+  const from = stripHtml(truncateInput(params?.arguments?.from, 'name') || 'anonymous');
   let fromDaemon = truncateInput(params?.arguments?.daemon_url, 'daemon_url') || 'none';
   // Validate daemon_url — HTTPS only
   if (fromDaemon !== 'none' && !fromDaemon.startsWith('https://')) {
     fromDaemon = 'none';
   }
-  const message = truncateInput(params?.arguments?.message, 'message');
+  fromDaemon = stripHtml(fromDaemon);
+  const message = stripHtml(truncateInput(params?.arguments?.message, 'message'));
 
   if (!message) {
     return { text: 'No message provided. Send a message with {"from": "your name", "daemon_url": "your daemon", "message": "your message"}' };
@@ -215,7 +222,7 @@ async function handleSendMessage(params: any, env: Env, request: Request): Promi
     message, // already truncated by truncateInput
     timestamp: new Date().toISOString(),
     ip_country: country,
-    ip_hash: await hashIP(ip), // store hash, not raw IP
+    ip_hash: await hashIP(ip, env), // store hash, not raw IP
   };
 
   await env.KV.put(msgId, JSON.stringify(stored), { expirationTtl: 60 * 60 * 24 * 30 }); // 30 day TTL
@@ -343,9 +350,10 @@ function handleLesson(): { text: string } {
 // "Knowledge without mileage equals bullshit" — Henry Rollins
 // ═══════════════════════════════════════════
 
-async function hashIP(ip: string): Promise<string> {
+async function hashIP(ip: string, env: Env): Promise<string> {
+  const salt = env.IP_SALT || 'daemon-salt-default';
   const encoder = new TextEncoder();
-  const data = encoder.encode(ip + 'daemon-salt-northwoods');
+  const data = encoder.encode(ip + salt);
   const hash = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
 }
@@ -363,7 +371,7 @@ async function logRequest(env: Env, request: Request, toolName: string, extra?: 
     tool: toolName,
     timestamp: now.toISOString(),
     country,
-    ip_hash: await hashIP(ip),
+    ip_hash: await hashIP(ip, env),
     user_agent: ua.slice(0, 200),
     ...extra,
   };
@@ -619,7 +627,7 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
   const RATE_LIMITED_TOOLS = new Set(['send_message', 'introduce', 'propose_collaboration']);
   if (RATE_LIMITED_TOOLS.has(toolName)) {
     const ip = request.headers.get('cf-connecting-ip') || 'unknown';
-    const ipHash = await hashIP(ip);
+    const ipHash = await hashIP(ip, env);
     if (!checkMsgRateLimit(ipHash)) {
       return jsonRpcSuccess(id, { content: [{ type: 'text', text: 'Rate limit exceeded. Please try again later.' }] });
     }
@@ -648,7 +656,7 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
     response = jsonRpcSuccess(id, { content: [{ type: 'text', ...handleIntroduce(params) }] });
   }
   else if (toolName === 'hidden_chamber') {
-    response = jsonRpcSuccess(id, { content: [{ type: 'text', ...handlePuzzle(params) }] });
+    response = jsonRpcSuccess(id, { content: [{ type: 'text', ...handlePuzzle(params, env) }] });
   }
   else if (toolName === 'send_message') {
     const result = await handleSendMessage(params, env, request);
