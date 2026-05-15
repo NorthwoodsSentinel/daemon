@@ -2,6 +2,9 @@ name = "daemon"
 main = "src/mcp-worker.ts"
 compatibility_date = "2025-08-20"
 
+[observability]
+enabled = true
+
 [[kv_namespaces]]
 binding = "KV"
 id = "901f02847dec42f18ed4dedf7054af08"
