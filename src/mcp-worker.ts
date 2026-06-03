@@ -22,6 +22,8 @@ interface Env {
   DASHBOARD_KEY: string;
   IP_SALT?: string;
   PUZZLE_PASSPHRASE?: string;
+  RESEND_API_KEY?: string;
+  ALERT_EMAIL?: string;
 }
 
 // "Scar tissue that I wish you saw" — RHCP (but Rollins would approve the sentiment)
@@ -392,7 +394,15 @@ async function logRequest(env: Env, request: Request, toolName: string, extra?: 
   if (ALERT_TOOLS.has(toolName)) {
     await writeAlert(env, toolName, entry);
     if (canSendEmail(entry.ip_hash)) {
-      await sendEmailAlert(toolName, entry);
+      const sent = await sendEmailAlert(env, toolName, entry);
+      if (!sent) {
+        // Make send failures VISIBLE instead of swallowing them silently.
+        await env.KV.put(
+          `email_failed_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+          JSON.stringify({ tool: toolName, ts: entry.timestamp, reason: !env.RESEND_API_KEY ? 'no_resend_key' : !env.ALERT_EMAIL ? 'no_alert_email' : 'send_failed' }),
+          { expirationTtl: 60 * 60 * 24 * 30 }
+        );
+      }
     }
   }
 }
@@ -407,34 +417,45 @@ async function writeAlert(env: Env, toolName: string, entry: any) {
   await env.KV.put('alerts_unread', String(count));
 }
 
-async function sendEmailAlert(toolName: string, entry: any, alertEmail = 'robert@northwoodssentinel.com') {
+// Sends via Resend (MailChannels' free Workers tier was discontinued in 2024).
+// Returns true only on a confirmed 2xx so the caller can record silent failures.
+async function sendEmailAlert(env: Env, toolName: string, entry: any): Promise<boolean> {
+  // No personal address in source (public repo) — recipient comes from a secret.
+  if (!env.RESEND_API_KEY || !env.ALERT_EMAIL) return false;
+  const alertEmail = env.ALERT_EMAIL;
+  // For the puzzle, say plainly whether they SOLVED it vs rattled the doorknob.
+  let tag = '';
+  if (toolName === 'hidden_chamber') {
+    tag = entry.solved ? ' ✅ SOLVED' : entry.had_attempt ? ' ❌ wrong-guess' : ' 👀 peeked';
+  }
   try {
-    await fetch('https://api.mailchannels.net/tx/v1/send', {
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        personalizations: [{ to: [{ email: alertEmail, name: 'Rob' }] }],
-        from: { email: 'daemon@northwoodssentinel.com', name: 'Daemon MCP' },
-        subject: `[Daemon] ${toolName} from ${entry.country}`,
-        content: [{
-          type: 'text/plain',
-          value: [
-            `Tool: ${toolName}`,
-            `Time: ${entry.timestamp}`,
-            `Country: ${entry.country}`,
-            `IP Hash: ${entry.ip_hash}`,
-            `User-Agent: ${entry.user_agent}`,
-            entry.from ? `From: ${entry.from}` : '',
-            entry.message ? `Message: ${entry.message}` : '',
-            entry.daemon_url ? `Daemon URL: ${entry.daemon_url}` : '',
-            '',
-            '— Your daemon is watching.',
-          ].filter(Boolean).join('\n'),
-        }],
+        from: 'Daemon MCP <daemon@northwoodssentinel.com>',
+        to: [alertEmail],
+        subject: `[Daemon] ${toolName}${tag} from ${entry.country}`,
+        text: [
+          `Tool: ${toolName}${tag}`,
+          `Time: ${entry.timestamp}`,
+          `Country: ${entry.country}`,
+          `IP Hash: ${entry.ip_hash}`,
+          `User-Agent: ${entry.user_agent}`,
+          entry.from ? `From: ${entry.from}` : '',
+          entry.message ? `Message: ${entry.message}` : '',
+          entry.daemon_url ? `Daemon URL: ${entry.daemon_url}` : '',
+          '',
+          '— Your daemon is watching.',
+        ].filter(Boolean).join('\n'),
       }),
     });
+    return res.ok;
   } catch {
-    // Email is best-effort — don't break the MCP response
+    return false;
   }
 }
 
@@ -638,6 +659,13 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
   if (params?.arguments?.name) logExtra.from = params.arguments.name;
   if (params?.arguments?.daemon_url) logExtra.daemon_url = params.arguments.daemon_url;
   if (params?.arguments?.message) logExtra.message = params.arguments.message.slice(0, 200);
+  // Distinguish a real unlock from a wrong guess / hint-peek so alerts say SOLVED, not just "touched"
+  if (toolName === 'hidden_chamber') {
+    const pass = (env.PUZZLE_PASSPHRASE || 'the body knows before the mind').toLowerCase().trim();
+    const attempt = (params?.arguments?.passphrase || '').toLowerCase().trim();
+    logExtra.had_attempt = !!attempt;
+    logExtra.solved = !!attempt && attempt === pass;
+  }
   const logPromise = logRequest(env, request, toolName, logExtra);
 
   let response: Response;
