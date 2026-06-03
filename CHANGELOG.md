@@ -8,14 +8,19 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) + [SemVer](http
 - `[upstream]` XDG-compliant path resolution for daemon.md
 - `[upstream]` Example template (`public/daemon.example.md`) for new users
 - `[upstream]` Setup documentation (`docs/SETUP.md`) with configuration guide
+- `[local]` `hidden_chamber` alerts now distinguish a real unlock (✅ SOLVED) from a wrong guess (❌) or hint-peek (👀)
 
 ### Changed
 - `[upstream]` Parser reads from `~/.config/daemon/daemon.md` (XDG) instead of repo
 - `[upstream]` Repo is now a clean framework - no personal data in history
 - `[local]` CLAUDE.md updated to reflect new content architecture
+- `[local]` Alert emails sent via Resend API (`RESEND_API_KEY`) instead of the discontinued MailChannels free Workers tier; recipient configurable via `ALERT_EMAIL`
 
 ### Removed
 - Personal content from git history via filter-repo rewrite
+
+### Fixed
+- `[local]` Alert delivery silently failed (dead MailChannels endpoint + empty `catch`); failed sends now logged to KV (`email_failed_*`) for visibility
 
 ## [2.0.0] - 2026-01-10
 
