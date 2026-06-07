@@ -1,15 +1,15 @@
 {
-  "mcp_server": "https://mcp.daemon.robertchuvala.wtf",
+  "mcp_server": "https://daemon.robertchuvala.wtf",
   "transports": {
     "json-rpc": {
-      "url": "https://mcp.daemon.robertchuvala.wtf/",
+      "url": "https://daemon.robertchuvala.wtf/",
       "method": "POST"
     },
     "sse": {
-      "url": "https://mcp.daemon.robertchuvala.wtf/sse"
+      "url": "https://daemon.robertchuvala.wtf/sse"
     }
   },
-  "tools": 14,
-  "version": "1.0.0",
+  "tools": 25,
+  "version": "2.0.0",
   "spec": "https://modelcontextprotocol.io"
 }
