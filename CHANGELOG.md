@@ -4,6 +4,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) + [SemVer](http
 
 ## [Unreleased]
 
+### Fixed
+- `[local]` MCP discovery URL pointed to dead subdomain `mcp.daemon.robertchuvala.wtf` (no DNS record). Updated `<link rel="mcp-server">` in `Layout.astro` and all three references in `public/.well-known/mcp.json` to `daemon.robertchuvala.wtf` (the parent zone which CNAMEs to the daemon worker). Brings advertised discovery in sync with the deployed worker. Tools count and version corrected to match deployed state (25 tools, 2.0.0).
+
 ### Added
 - `[upstream]` XDG-compliant path resolution for daemon.md
 - `[upstream]` Example template (`public/daemon.example.md`) for new users
