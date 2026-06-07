@@ -1,12 +1,12 @@
 {
-  "mcp_server": "https://daemon.robertchuvala.wtf",
+  "mcp_server": "https://daemon.robert-chuvala.workers.dev",
   "transports": {
     "json-rpc": {
-      "url": "https://daemon.robertchuvala.wtf/",
+      "url": "https://daemon.robert-chuvala.workers.dev/",
       "method": "POST"
     },
     "sse": {
-      "url": "https://daemon.robertchuvala.wtf/sse"
+      "url": "https://daemon.robert-chuvala.workers.dev/sse"
     }
   },
   "tools": 25,
