@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) + [SemVer](http
 ## [Unreleased]
 
 ### Added
+- `[local]` Body-weight tracking via two new MCP tools: `log_weight` (record a reading) and `get_weight_status` (return current, targets, trend). Auth-gated by `WEIGHT_KEY` env var. Targets configured via `WEIGHT_TARGET_STRETCH` / `WEIGHT_TARGET_SETTLE` (default 180 / 190 lb). Storage in KV with 5-year TTL on individual readings; index of the last 200 timestamps. Personal health data, not public — both read and write require auth.
 - `[upstream]` XDG-compliant path resolution for daemon.md
 - `[upstream]` Example template (`public/daemon.example.md`) for new users
 - `[upstream]` Setup documentation (`docs/SETUP.md`) with configuration guide
