@@ -15,6 +15,15 @@
  */
 
 import { daemonData } from './generated/daemon-data';
+import {
+  isWeightAuth,
+  isWeightEnabled,
+  validateLb,
+  validateNote,
+  parseTsOverride,
+  logWeight,
+  getWeightStatus,
+} from './weight';
 
 interface Env {
   ASSETS: { fetch: (request: Request) => Promise<Response> };
@@ -22,6 +31,10 @@ interface Env {
   DASHBOARD_KEY: string;
   IP_SALT?: string;
   PUZZLE_PASSPHRASE?: string;
+  // Body weight tracking — personal health data, auth-gated.
+  WEIGHT_KEY?: string;
+  WEIGHT_TARGET_STRETCH?: string;
+  WEIGHT_TARGET_SETTLE?: string;
 }
 
 // "Scar tissue that I wish you saw" — RHCP (but Rollins would approve the sentiment)
@@ -566,6 +579,25 @@ const EXTENDED_TOOLS = [
     description: 'Get a random teaching from this daemon — flow laws, philosophy, insights, or poetry. Different every time.',
     inputSchema: { type: 'object' as const, properties: {} },
   },
+  // ── Body-weight tracking (auth-gated, personal health data) ───────────────
+  {
+    name: 'log_weight',
+    description: 'Log a body weight reading. Requires WEIGHT_KEY bearer auth — personal health data, not public.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        lb: { type: 'number', description: 'Weight in pounds (50-500).' },
+        note: { type: 'string', description: 'Optional context (e.g. "morning, post-bathroom").' },
+        ts: { type: 'string', description: 'Optional ISO date or unix ms; defaults to now.' },
+      },
+      required: ['lb'],
+    },
+  },
+  {
+    name: 'get_weight_status',
+    description: 'Return current weight, targets (stretch 180 / settle 190), trend, and time-since-last-log. Requires WEIGHT_KEY auth.',
+    inputSchema: { type: 'object' as const, properties: {} },
+  },
 ];
 
 const ALL_TOOLS = [...STANDARD_TOOLS, ...EXTENDED_TOOLS];
@@ -667,6 +699,42 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
   }
   else if (toolName === 'get_lesson') {
     response = jsonRpcSuccess(id, { content: [{ type: 'text', ...handleLesson() }] });
+  }
+  // ── Body-weight tracking — auth-gated ──────────────────────────────────
+  else if (toolName === 'log_weight') {
+    if (!isWeightEnabled(env)) {
+      await logPromise;
+      return jsonRpcError(id, -32004, 'Weight tracking disabled — no WEIGHT_KEY configured.');
+    }
+    if (!isWeightAuth(request.headers.get('Authorization'), env)) {
+      await logPromise;
+      return jsonRpcError(id, -32001, 'Unauthorized: log_weight requires WEIGHT_KEY bearer auth.');
+    }
+    const lb = validateLb(params?.arguments?.lb);
+    if (lb === null) {
+      await logPromise;
+      return jsonRpcError(id, -32602, 'Invalid lb: must be a number between 50 and 500.');
+    }
+    const note = validateNote(params?.arguments?.note);
+    const ts = parseTsOverride(params?.arguments?.ts);
+    const result = await logWeight(env, lb, note, ts);
+    response = jsonRpcSuccess(id, {
+      content: [{ type: 'text', text: `Logged ${result.lb} lb at ${new Date(result.ts).toISOString()}.` }],
+    });
+  }
+  else if (toolName === 'get_weight_status') {
+    if (!isWeightEnabled(env)) {
+      await logPromise;
+      return jsonRpcError(id, -32004, 'Weight tracking disabled — no WEIGHT_KEY configured.');
+    }
+    if (!isWeightAuth(request.headers.get('Authorization'), env)) {
+      await logPromise;
+      return jsonRpcError(id, -32001, 'Unauthorized: get_weight_status requires WEIGHT_KEY bearer auth.');
+    }
+    const status = await getWeightStatus(env);
+    response = jsonRpcSuccess(id, {
+      content: [{ type: 'text', text: JSON.stringify(status, null, 2) }],
+    });
   }
   // Standard section tools
   else {
