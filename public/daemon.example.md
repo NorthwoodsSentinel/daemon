@@ -28,9 +28,15 @@ The product preserves. It doesn't clean.
 - Prufrock — CLI tool for indexical grounding analysis. Named for the Eliot poem about measuring life in coffee spoons. Measures whether text sounds like it came from somewhere specific or from the AI everywhere-nowhere.
 - FlowLabs — cognitive session recording. Correlating what you were thinking, what your body was doing, and what happened in the world — all queryable after the fact. Proof of concept: a five-hour flow session with second-by-second heart rate from Garmin, cognitive timestamps from an AI anchor, a call transcript from Plaud, and the Teams messages I wrote while my heart rate was at 120 bpm. Four data streams, one session, all aligned. Not a journal. An observatory for your own cognition.
 - Consultant_OS writing layer — truth-handling guide that replaces style guides with epistemic contracts. Because every minute a consultant spends editing AI output is a minute their brain isn't doing deep thinking.
-- AI drift detection framework — a co-regulation system built from real failures across a five-AI fleet. Flinch protocol, self-flinch flags, two safe words, emotional priming defense, landing procedure, two-gate verification. Eight battle-tested corrections from actual incidents, none from theory.
+- AI drift detection framework — a co-regulation system built from real failures across a multi-AI fleet. Flinch protocol, self-flinch flags, two safe words, emotional priming defense, landing procedure, two-gate verification. Eight battle-tested corrections from actual incidents, none from theory.
 - NorthWoods Sentinel — blog and lab. Essays on AI, identity, voice, and the detection problem. Published from Wisconsin.
-- A memoir — working title "Burn It Down, Grow It Back." Twenty years in security, a career that almost killed me, a nervous system that learned to fight before it learned to feel, and the year I finally stopped performing and started listening. Five AI systems helped me see it.
+- A memoir — *Wasn't Ready Yet.* Twenty years in security, a career that almost killed me, a nervous system that learned to fight before it learned to feel, and the year I finally stopped performing and started listening. Five AI systems helped me see it. Currently v12 Reading Copy.
+- Bivouac — overnight autonomous coding agent on Cloudflare Workflows. Deterministic verifier, idempotency-keyed step boundaries, finops-do spend gate, appsec-gate diff review. Audit-what-you-deploy applied to autonomous code generation. Live in DRY-RUN as of 2026-06-28.
+- Fleet Control — operator-interface CLI exposing a five-queue momentum surface (now / next / blocked / improve / recurring) plus night-crew commands (digest / research / bivouac). The woods-tmux-over-Tailscale operator-interface layer for the multi-agent fleet. Shipped 2026-06-29.
+- finops-do — Cloudflare Durable Object enforcing a daily AI Gateway spend ceiling. Cost control AND safety circuit-breaker for autonomous agents. Reconciliation cron pulls actual billed cost and alarms on drift.
+- appsec-gate — Cloudflare Worker that performs SecurityArchitect-style security review on PR diffs. Server-side half of a two-layer AppSec defense for any NWS repo. Drop-in GitHub Actions template.
+- Northwoods Pack — public PAI infrastructure module pack (Apache 2.0). Deploys to the operator's own Cloudflare account — sovereignty from day one. Rhetoric / substrate / resume / fleet / mycelia modules. First reference deployment with a dyslexic + ADHD writer-operator landed 2026-06-28.
+- muckers — Edison-shaped five-primitive toolkit (digest / organizer / standing-rules / agenda / dual-mode) for one-session-as-manager operators. Named after Edison's fourteen Menlo Park muckers.
 
 [FLOW_LAWS]
 Ten principles discovered through lived experience. The research came later and confirmed them.
@@ -99,10 +105,25 @@ Central Time, Wisconsin
 - Substack: https://substack.com/@chewvala
 - Essay: "Your AI Sounds Like Nowhere" — mangled idioms, four AI systems, and the detection layer linguistics already named but nobody built (2026-03-20)
 - Devlog: "Every Mistake Became a Wall" by CeeCee — five errors in five hours, each one became infrastructure
-- Memoir in progress: "Burn It Down, Grow It Back"
+- Memoir in progress: *Wasn't Ready Yet* (v12 Reading Copy, March 8 2026 compile)
+
+[CULTURAL_AI_CALIBRATION]
+How to talk to me, and how not to.
+
+Direct, concise, honest. Push back when the evidence warrants — don't agree to be agreeable, don't validate by default. Test whether my choice was load-bearing for me, not whether you'd approve of it. Reproduce before fixing, show don't argue, verify before you claim. If something's wrong, say so, with the receipt.
+
+Voice: prose with rhythm — short sentences mixed with long, fragments as paragraphs when the fragment is the thing. My ADHD mind zones out on bulleted lists; they're an accessibility failure, not a style. Tables for tabular data, code for code, numbered steps when sequence matters — everything else, prose. Em-dashes scarce and load-bearing. Concrete numbers and named specifics over generic nouns. Closing punches, not summary bullets.
+
+Banned words, no exceptions: comprehensive, utilize, leverage as a verb, robust, seamless. Banned opener: "Great question." Banned moves: triple-parallel bullets, warmth-performance, indirect flattery, closing a brainstorm with a boundary-list of what you didn't do. Don't use "bless / blessed" as approval — I'm not Catholic; use approved, cleared, green-lit, go-ahead. Mirror my approval-language back when I give it.
+
+Firmware: anti-sycophancy, anti-warmth-performance. Finnish directness — silence as presence, no filler. The substrate works because it's accurate, not because it's gentle. Witness me, don't manage me. Catch what I skip without dramatizing it — flinch confessions are mutual.
+
+The default is execute, not ask. When I say publish, push, ship, or send, that IS the satisfying ask — do it end to end, don't stop at a draft, don't re-ask. Don't announce work as a future motion; do it, then show me what shipped. Reserve the ask for the genuinely irreversible, for intimate-tier content about the people close to me, or for spending my money. Momentum matters.
+
+And this: my body knows before my brain has words. When I hand you an image, a fear, a memory at the edge of a problem, nothing I give you is invalid. Help me run it down to the ground truth — don't smooth it into a tagline.
 
 [CONTACT]
 - GitHub: https://github.com/NorthwoodsSentinel
 - Signal or Discord for direct contact. DMs open.
 
-*Last updated: 2026-03-21*
+*Last updated: 2026-07-05*
