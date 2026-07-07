@@ -15,6 +15,12 @@
  */
 
 import { daemonData } from './generated/daemon-data';
+import * as generatedSnapshot from './generated/daemon-data';
+import {
+  buildSectionResult,
+  computeProvenance,
+  isUnpopulated,
+} from './freshness';
 import {
   isWeightAuth,
   isWeightEnabled,
@@ -116,6 +122,24 @@ const SECTION_MAP: Record<string, () => string> = {
   ].join('\n'),
   get_all: () => JSON.stringify(daemonData, null, 2),
 };
+
+// ═══════════════════════════════════════════
+// T-100 — freshness + provenance on canonical answers
+// The generated snapshot carries `lastUpdated` (from daemon.md footer) and, when
+// built by the current parser, `generatedAt` (ISO build time). Surface both on
+// every canonical answer so a caller can see how fresh the data is — and flag
+// staleness/emptiness loudly instead of serving a frozen fact as authoritative.
+// ═══════════════════════════════════════════
+
+const SNAPSHOT_GENERATED_AT: string | null =
+  (generatedSnapshot as { generatedAt?: string }).generatedAt ?? null;
+
+// Build a provenance-carrying JSON-RPC result for a canonical section answer.
+// Empty sections come back as { status: 'unpopulated' }; stale ones carry a loud
+// warning. Response `content` shape is preserved for existing callers.
+function sectionResult(sectionName: string, text: string) {
+  return buildSectionResult(text, sectionName, daemonData.lastUpdated, SNAPSHOT_GENERATED_AT);
+}
 
 // ═══════════════════════════════════════════
 // "I find that the harder I work, the more luck I seem to have"
@@ -482,10 +506,18 @@ async function handleDashboard(env: Env): Promise<Response> {
     })
   );
 
+  // T-100 — surface content freshness so "daemon is up" (checked) isn't mistaken
+  // for "answers are current" (content_last_updated / content_stale).
+  const contentProvenance = computeProvenance(daemonData.lastUpdated, SNAPSHOT_GENERATED_AT);
+
   const dashboard = {
     daemon: 'rob-chuvala',
     version: '2.0.0',
     checked: new Date().toISOString(),
+    content_last_updated: contentProvenance.last_updated,
+    content_generated_at: contentProvenance.generated_at,
+    content_age_days: contentProvenance.age_days,
+    content_stale: contentProvenance.stale,
     alerts_unread: parseInt(unread || '0'),
     stats: {
       today: todayStats ? JSON.parse(todayStats) : { _total: 0 },
@@ -577,6 +609,11 @@ const EXTENDED_TOOLS = [
   {
     name: 'get_lesson',
     description: 'Get a random teaching from this daemon — flow laws, philosophy, insights, or poetry. Different every time.',
+    inputSchema: { type: 'object' as const, properties: {} },
+  },
+  {
+    name: 'get_freshness',
+    description: 'Returns provenance for the daemon\'s canonical content: when it was last updated, when the snapshot was generated, its age in days, whether it exceeds the freshness budget (stale), and which sections are unpopulated. Use this to tell "daemon is up" apart from "answers are current".',
     inputSchema: { type: 'object' as const, properties: {} },
   },
   // ── Body-weight tracking (auth-gated, personal health data) ───────────────
@@ -681,7 +718,21 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
     const lookupKey = `get_${sectionArg.toLowerCase().replace(/\s+/g, '_')}`;
     const getter = SECTION_MAP[lookupKey];
     if (!getter) { await logPromise; return jsonRpcError(id, -32602, `Unknown section: ${sectionArg}`); }
-    response = jsonRpcSuccess(id, { content: [{ type: 'text', text: getter() }] });
+    response = jsonRpcSuccess(id, sectionResult(sectionArg, getter()));
+  }
+  // Freshness / provenance report for the whole snapshot
+  else if (toolName === 'get_freshness') {
+    const provenance = computeProvenance(daemonData.lastUpdated, SNAPSHOT_GENERATED_AT);
+    const unpopulatedSections = Object.keys(SECTION_MAP)
+      .filter((k) => isUnpopulated(SECTION_MAP[k]()))
+      .map((k) => k.replace(/^get_/, ''));
+    const report = { ...provenance, unpopulated_sections: unpopulatedSections };
+    response = jsonRpcSuccess(id, {
+      content: [{ type: 'text', text: JSON.stringify(report, null, 2) }],
+      provenance,
+      stale: provenance.stale,
+      unpopulated_sections: unpopulatedSections,
+    });
   }
   // Extended tools
   else if (toolName === 'introduce') {
@@ -740,7 +791,7 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
   else {
     const getter = SECTION_MAP[toolName];
     if (!getter) { await logPromise; return jsonRpcError(id, -32601, `Unknown tool: ${toolName}`); }
-    response = jsonRpcSuccess(id, { content: [{ type: 'text', text: getter() }] });
+    response = jsonRpcSuccess(id, sectionResult(toolName.replace(/^get_/, ''), getter()));
   }
 
   // Wait for logging to complete before returning

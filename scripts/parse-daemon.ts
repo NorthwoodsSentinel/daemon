@@ -176,6 +176,7 @@ function extractHeroData(sections: DaemonSections): HeroData {
  * Generate TypeScript output file
  */
 function generateOutput(data: DaemonData, heroData: HeroData, sourcePath: string): string {
+	const generatedAt = new Date().toISOString();
 	return `/**
  * AUTO-GENERATED FILE - DO NOT EDIT
  *
@@ -183,7 +184,7 @@ function generateOutput(data: DaemonData, heroData: HeroData, sourcePath: string
  * Parser: scripts/parse-daemon.ts
  * To update, edit your daemon.md and run: bun run parse-daemon
  *
- * Generated: ${new Date().toISOString()}
+ * Generated: ${generatedAt}
  */
 
 import type { DaemonData, HeroData } from "../types/daemon.types";
@@ -191,6 +192,12 @@ import type { DaemonData, HeroData } from "../types/daemon.types";
 export const daemonData: DaemonData = ${JSON.stringify(data, null, "\t")};
 
 export const heroData: HeroData = ${JSON.stringify(heroData, null, "\t")};
+
+/**
+ * ISO timestamp this snapshot was generated. Surfaced at call time (T-100) as
+ * provenance so callers can see how fresh the frozen data is.
+ */
+export const generatedAt = ${JSON.stringify(generatedAt)};
 
 /**
  * Tool count for dashboard (matches MCP server tools)
