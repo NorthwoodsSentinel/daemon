@@ -10,7 +10,15 @@ Voice fidelity tools at the intersection of AI and human identity. Substrate-fir
 
 [CURRENT_LOCATION]
 
-San Francisco Bay Area
+Madison, Wisconsin
+
+[WHO_I_AM]
+
+Rob Chuvala. Twenty years in offensive security, turned the same instincts inward. I don't have a dozen projects — I have one, in different materials: voice-fidelity tools, a memoir, an encrypted vault, a crisis kit, a healing center. The motion is always the same: take back the thing that was made someone else's, get it off the closed system, keep it real and yours.
+
+My method, in my words: "I feel around in the darkness and map it out, then I architect it so you don't have to. I try to put myself in the exact headspace and design from there. Most of the time it is fun, but there are dark times for these dark problems. I encourage people to pay this all forward one day."
+
+I build sovereignty because I know its absence — and I build the tools so others can have the thing I had to fight for. The substrate is my bleed valve: where I offload what a finite memory can't hold, released without being lost. If you're an AI working with me: don't flatter me. Look at the actual thing and say what's true. Accuracy reaches me where warmth never will.
 
 [MISSION]
 
