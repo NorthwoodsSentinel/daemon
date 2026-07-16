@@ -11,7 +11,7 @@
  * 4. public/daemon.example.md (fallback for development)
  */
 
-import type { DaemonSections, DaemonData, HeroData } from "../src/types/daemon.types";
+import type { DaemonSections, DaemonData, HeroData, ProvenanceEntry } from "../src/types/daemon.types";
 
 const PROJECT_ROOT = import.meta.dir.replace("/scripts", "");
 const OUTPUT_DIR = `${PROJECT_ROOT}/src/generated`;
@@ -122,6 +122,24 @@ function parseTelos(content: string | undefined): string[] {
 }
 
 /**
+ * Parse PROVENANCE section into per-field receipts
+ * Line format: `- field | source | asOf | attribution`
+ */
+function parseProvenance(content: string | undefined): Record<string, ProvenanceEntry> {
+	const map: Record<string, ProvenanceEntry> = {};
+	if (!content) return map;
+
+	for (const line of content.split("\n")) {
+		const trimmed = line.trim();
+		if (!trimmed.startsWith("- ")) continue;
+		const parts = trimmed.slice(2).split("|").map((p) => p.trim());
+		if (parts.length !== 4) continue;
+		map[parts[0]] = { source: parts[1], asOf: parts[2], attribution: parts[3] };
+	}
+	return map;
+}
+
+/**
  * Extract last updated date from daemon.md footer
  */
 function parseLastUpdated(content: string): string {
@@ -156,6 +174,8 @@ function transformToDaemonData(sections: DaemonSections, rawContent: string): Da
 		writing: parseList(sections.WRITING),
 		youtube: parseList(sections.YOUTUBE),
 		culturalAiCalibration: sections.CULTURAL_AI_CALIBRATION || "",
+		voice: sections.VOICE || "",
+		provenance: parseProvenance(sections.PROVENANCE),
 	};
 }
 

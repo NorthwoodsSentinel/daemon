@@ -4,7 +4,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) + [SemVer](http
 
 ## [Unreleased]
 
+### Security
+- `[local]` Removed re-tracked personal `daemon.md` from the repo tip (regression of the 2026-01 filter-repo scrub; re-added by later refresh commits). Added `daemon.md` to `.gitignore` so it cannot be re-tracked. History rewrite for the re-added commits pending owner decision.
+- `[local]` Replaced `public/daemon.example.md` personal content with a generic placeholder persona — the template had drifted into a copy of the real daemon.md.
+
 ### Added
+- `[local]` First-class `[VOICE]` section — the enforced writing-voice spec, served as `voice` so anything generating text as the principal can be scored against it.
+- `[local]` Per-field `[PROVENANCE]` receipts (`- field | source | asOf | attribution`), parsed into a `provenance` map and served with `get_all`. Receipts, not vibes: every field names where it came from, when, and on whose authority.
 - `[local]` T-100 freshness + provenance guard on canonical answers. Every section answer now carries `provenance` (`last_updated`, `generated_at`, `age_days`, `budget_days`) and a `stale` flag; content older than a 14-day budget is flagged `stale: true` with a loud warning (warned, never refused). Empty/whitespace sections now return `{ status: "unpopulated" }` instead of a blank string, so "missing fact" is distinguishable from "blank fact". New `get_freshness` MCP tool reports snapshot provenance and lists unpopulated sections. `/dashboard` now surfaces `content_last_updated` / `content_generated_at` / `content_age_days` / `content_stale`. Parser emits a `generatedAt` export. Pure freshness logic lives in `src/freshness.ts` with `bun test` coverage.
 - `[local]` Body-weight tracking via two new MCP tools: `log_weight` (record a reading) and `get_weight_status` (return current, targets, trend). Auth-gated by `WEIGHT_KEY` env var. Targets configured via `WEIGHT_TARGET_STRETCH` / `WEIGHT_TARGET_SETTLE` (default 180 / 190 lb). Storage in KV with 5-year TTL on individual readings; index of the last 200 timestamps. Personal health data, not public — both read and write require auth.
 - `[upstream]` XDG-compliant path resolution for daemon.md

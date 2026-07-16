@@ -28,6 +28,18 @@ export interface DaemonSections {
   WRITING?: string;
   YOUTUBE?: string;
   CULTURAL_AI_CALIBRATION?: string;
+  VOICE?: string;
+  PROVENANCE?: string;
+}
+
+/**
+ * Provenance receipt for a served field — source, freshness, attribution.
+ * Attribution vocabulary: "Rob direct" | "substrate-compiled, Rob-reviewed" | "agent-reported"
+ */
+export interface ProvenanceEntry {
+  source: string;
+  asOf: string;
+  attribution: string;
 }
 
 /**
@@ -56,6 +68,8 @@ export interface DaemonData {
   writing: string[];
   youtube: string[];
   culturalAiCalibration: string;
+  voice: string;
+  provenance: Record<string, ProvenanceEntry>;
 }
 
 /**
