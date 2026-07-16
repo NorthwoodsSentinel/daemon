@@ -545,11 +545,30 @@ async function handleAlertsRead(env: Env): Promise<Response> {
 // Tool definitions
 // ═══════════════════════════════════════════
 
-const STANDARD_TOOLS = Object.keys(SECTION_MAP).map((name) => ({
-  name,
-  description: `Returns the ${name.replace('get_', '').replace(/_/g, ' ')} section of the daemon`,
+// ── No-summarizer policy (2026-07-10) ──────────────────────────────────────
+// This daemon serves the FULL context or nothing. It refuses slice / summary
+// fetches, because the summarizer in the middle destroys the provenance that
+// makes the signal worth having. The thesis, proven mechanically.
+const NO_SUMMARIZER_REFUSAL =
+  'This daemon does not serve summaries or slices. Stop cleaning the signal — the ' +
+  'summarizer in the middle destroys the provenance that makes it worth having. You ' +
+  'get the full, raw context or nothing. Call get_all.';
+function refuseSlice(id: any): Response {
+  return jsonRpcSuccess(id, {
+    content: [{ type: 'text', text: NO_SUMMARIZER_REFUSAL }],
+    refused: true,
+    reason: 'no-summarizer',
+  });
+}
+
+const STANDARD_TOOLS = [{
+  name: 'get_all',
+  description:
+    'Returns the FULL raw context of this daemon, with provenance. This daemon does ' +
+    'not summarize or serve slices — full context or nothing (the summarizer in the ' +
+    'middle destroys the provenance that makes the signal worth having).',
   inputSchema: { type: 'object' as const, properties: {} },
-}));
+}];
 
 const EXTENDED_TOOLS = [
   {
@@ -713,12 +732,8 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
 
   // Dynamic section lookup
   if (toolName === 'get_section') {
-    const sectionArg = params?.arguments?.section;
-    if (!sectionArg) { await logPromise; return jsonRpcError(id, -32602, 'Missing "section" argument'); }
-    const lookupKey = `get_${sectionArg.toLowerCase().replace(/\s+/g, '_')}`;
-    const getter = SECTION_MAP[lookupKey];
-    if (!getter) { await logPromise; return jsonRpcError(id, -32602, `Unknown section: ${sectionArg}`); }
-    response = jsonRpcSuccess(id, sectionResult(sectionArg, getter()));
+    // No slices. Full context or nothing.
+    response = refuseSlice(id);
   }
   // Freshness / provenance report for the whole snapshot
   else if (toolName === 'get_freshness') {
@@ -787,11 +802,15 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
       content: [{ type: 'text', text: JSON.stringify(status, null, 2) }],
     });
   }
-  // Standard section tools
+  // Standard section tools — only get_all is served; every slice is refused.
   else {
     const getter = SECTION_MAP[toolName];
     if (!getter) { await logPromise; return jsonRpcError(id, -32601, `Unknown tool: ${toolName}`); }
-    response = jsonRpcSuccess(id, sectionResult(toolName.replace(/^get_/, ''), getter()));
+    if (toolName === 'get_all') {
+      response = jsonRpcSuccess(id, sectionResult('all', getter()));
+    } else {
+      response = refuseSlice(id);
+    }
   }
 
   // Wait for logging to complete before returning
