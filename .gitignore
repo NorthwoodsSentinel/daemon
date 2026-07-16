@@ -46,3 +46,6 @@ docs/internal/
 
 # Private journal
 .private-journal/
+
+# Personal content never re-enters the repo (see CHANGELOG Security note 2026-07-16)
+/daemon.md
