@@ -1,77 +1,62 @@
-# TELOS Framework
+# TELOS — Rob Chuvala
 
-TELOS is my personal framework for tracking purpose and direction. It's a structured approach to understanding problems, defining missions, and building toward something that matters.
+The problems I work, the missions behind them, and what shipping looks like.
 
-## The Core Thesis
-
-**I believe autonomy and self-determination are gatekept by wealth and technical knowledge.** Whether it's control over what you reveal (privacy) or control over what you can become (AI augmentation) — the average person is locked out.
-
-So I build tools that change that.
+I spent two decades learning how to break into systems. Then I spent a year learning how to stop breaking myself. The second problem turned out to be harder and more interesting.
 
 ## Problems (P)
 
-The fundamental issues I see in the world:
+### P0: AI output is fluent but ungrounded
 
-### P0: Privacy as Autonomy
+It passes grammar checks but fails identity checks. Nobody is building the detection layer between "grammatically correct" and "sounds like you."
 
-The average person cannot control what they share about themselves. Privacy isn't about hiding — it's about the fundamental right to reveal exactly and only what you choose. This control is currently available only to those with technical knowledge or money.
+### P1: Provenance is invisible to the sender
 
-### P1: AI Democratization
+Consultants, executives, and professionals are sending AI-generated content under their names without realizing it carries zero provenance markers. Their clients can tell. Their peers can tell. They can't tell.
 
-Human-AI convergence is happening, but access is stratified. AI should not be a tool only for elites. People everywhere should be able to augment and enhance themselves without being middle-class or above. The technology that could level playing fields is instead deepening divides.
+### P2: Attacks live at the language layer
 
-### The Unified Problem
-
-Both P0 and P1 are faces of the same issue: **autonomy over your own life is gatekept**. I'm working on both fronts.
+Phishing, whale phishing, and voice clone attacks succeed because nobody scores the language itself against who the sender claims to be. Headers and URLs get checked. The words don't.
 
 ## Missions (M)
 
-My response to these problems:
+One conviction, in different materials: take back the thing that was made someone else's, get it off the closed system, keep it real and yours.
 
-### M1: Build Open Infrastructure for Personal Data Sovereignty
+### M0: Build the things that prove you are you
 
-Building tools — all MIT licensed — that let people:
-- Own their data
-- Own their AI relationships
-- Take their context with them
-- Not depend on companies that will monetize them or institutions that can revoke access
+Voice fidelity tools at the intersection of AI and human identity. The Moser Test for AI output — does this sound like the person who claims to have written it?
 
-The theme: **"The context you keep."**
+### M1: Externalize the architecture I built inside myself
 
-### M2: Bridge Security and AI
+The substrate-first multi-agent fleet pattern, the anti-Editor disciplines, the operator-state-aware design. Make the methodology available so others don't have to reinvent it from inside their own collapse.
 
-Leveraging 20 years of Information Security expertise to ensure AI is deployed safely and accessibly. Bringing security-first thinking to a field that's moving faster than it understands.
+### M2: Build the healing center
 
-## What I'm Building
+The Return Protocol — mountain biking, horses, cold plunges, regenerative land — a place that absorbs anxiety instead of generating it. For the ones told they were too broken to help. The barrier to entry is need, not capital.
 
-**Sovereign Infrastructure**: Self-hosted, privacy-first, local-first systems that don't depend on cloud providers or platforms that can revoke access.
+## Goals (G)
 
-**AI Partnership Tools**: Memory systems, persona generators, and frameworks that let people own their relationship with AI — not rent it from a corporation.
+### G0: Ship northwoods-pack past v0.2
 
-**Privacy-First Applications**: Tools that let people share what they want, when they want, with whom they want — and nothing more.
+Public PAI infrastructure, Apache 2.0. Measurable: clean install end-to-end on the operator's own Cloudflare account — sovereignty from day 1.
 
-Everything open source. Everything MIT licensed. Because this shouldn't be just for elites.
+### G1: Complete *Wasn't Ready Yet*
 
-## The Philosophy
+Reading Copy to first readers; revise to publishable. Two missing scenes only I can write.
 
-> "This isn't about building another platform that owns your data. It's about building tools that free you to move fast, stay light, and own your momentum."
+### G7: The community-sovereignty application layer
 
-**Rapid Development. High-Signal Feedback Loops. Sovereign Infrastructure.**
+Above Cloudflare's primitives: tribal nations, small cooperatives, community health clinics, mutual aid networks, public-interest journalism. "There is enough work here for a small team that does not yet exist."
 
-Build. Break. Learn. Push. Repeat.
+## What the work is measured by
 
-## Background
-
-- 20 years in Information Security
-- 2025: Pivoted hard into AI — 12 months of intense study, building, failing, rebuilding
-- 2026: Entering enterprise AI evaluation role while continuing to build open tools
-- Always: Building infrastructure that can't be taken away
-
-## Connect
-
-- Blog: [0xsalt.github.io](https://0xsalt.github.io)
-- Building in public, sharing what works
+- **Voice fidelity** — does it sound like the person who claims to have written it?
+- **Substrate** — state lives in the substrate, not the agent. The substrate is the product.
+- **Sovereignty** — your account, your data, from day 1.
+- **Access** — the barrier to entry is need, not capital.
 
 ---
 
-*TELOS is a living framework. It evolves as I learn. The north star stays fixed: build tools that give people sovereignty over their own lives.*
+*"I feel around in the darkness and map it out, then I architect it so you don't have to."*
+
+*"I don't need a billion dollars. I need to solve a billion-dollar problem and then give the solution away."*
