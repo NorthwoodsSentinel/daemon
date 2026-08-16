@@ -41,6 +41,10 @@ interface Env {
   WEIGHT_KEY?: string;
   WEIGHT_TARGET_STRETCH?: string;
   WEIGHT_TARGET_SETTLE?: string;
+  // rob-memoryd — the memory authority the fleet asks (T-244). The daemon holds NO memory secret:
+  // the caller's bearer is forwarded verbatim, so auth stays end-to-end at rob-memoryd.
+  MEMORYD_URL?: string;
+  MEMORYD?: { fetch: (input: string | Request, init?: RequestInit) => Promise<Response> }; // service binding to rob-memoryd (same account; workers.dev fetch = error 1042)
 }
 
 // "Scar tissue that I wish you saw" — RHCP (but Rollins would approve the sentiment)
@@ -656,7 +660,49 @@ const EXTENDED_TOOLS = [
   },
 ];
 
-const ALL_TOOLS = [...STANDARD_TOOLS, ...EXTENDED_TOOLS];
+// ── rob-memoryd front door (T-244, 2026-08-16) — auth-gated: caller supplies the rob-memoryd read key as bearer ──
+const MEMORY_TOOLS = [
+  {
+    name: 'memory_ask',
+    description: 'Ask Rob\'s memory authority (rob-memoryd) a question. Returns {answer, citations, confidence, holds, conflicts}. Requires the rob-memoryd READ_KEY as bearer auth — fleet agents only. Ask this BEFORE asking Rob.',
+    inputSchema: { type: 'object' as const, properties: { question: { type: 'string', description: 'The question about Rob, his rules, projects, or history.' }, agent: { type: 'string', description: 'Your agent name (for the ask log).' } }, required: ['question'] },
+  },
+  {
+    name: 'memory_recall',
+    description: 'Raw evidence retrieval from rob-memoryd (hybrid vector + BM25). Returns scored chunks with source, author, trust, date. Requires READ_KEY bearer.',
+    inputSchema: { type: 'object' as const, properties: { query: { type: 'string' }, top_k: { type: 'number', description: 'default 8' } }, required: ['query'] },
+  },
+  {
+    name: 'memory_profile',
+    description: 'Distilled profile facts for a topic (identity | telos | rules | projects | grounding | voice | fleet | relationships | career), each with evidence. Requires READ_KEY bearer.',
+    inputSchema: { type: 'object' as const, properties: { topic: { type: 'string' } } },
+  },
+  {
+    name: 'memory_state',
+    description: 'rob-memoryd health: records/words/chunks, ingest freshness, last eval (pass/fail/leak), healthy flag. Requires READ_KEY bearer.',
+    inputSchema: { type: 'object' as const, properties: {} },
+  },
+];
+
+const ALL_TOOLS = [...STANDARD_TOOLS, ...EXTENDED_TOOLS, ...MEMORY_TOOLS];
+
+async function handleMemoryTool(toolName: string, args: any, env: Env, request: Request): Promise<{ ok: boolean; status?: number; body?: any; error?: string }> {
+  const base = env.MEMORYD_URL || 'https://rob-memoryd.robert-chuvala.workers.dev';
+  const authz = request.headers.get('Authorization') || '';
+  if (!/^Bearer\s+\S+/.test(authz)) return { ok: false, error: 'Unauthorized: memory_* tools require the rob-memoryd READ_KEY as bearer auth.' };
+  let url = base, init: RequestInit = { headers: { Authorization: authz, 'content-type': 'application/json' } };
+  if (toolName === 'memory_ask') { url += '/v1/ask'; init.method = 'POST'; init.body = JSON.stringify({ question: String(args?.question || ''), agent: String(args?.agent || 'bht') }); }
+  else if (toolName === 'memory_recall') { url += '/v1/recall'; init.method = 'POST'; init.body = JSON.stringify({ query: String(args?.query || ''), top_k: Number(args?.top_k) || 8 }); }
+  else if (toolName === 'memory_profile') { url += '/v1/profile?topic=' + encodeURIComponent(String(args?.topic || 'identity')); }
+  else if (toolName === 'memory_state') { url += '/v1/state'; }
+  else return { ok: false, error: 'Unknown memory tool' };
+  try {
+    const r = env.MEMORYD ? await env.MEMORYD.fetch(url, init) : await fetch(url, init); const text = await r.text(); let body: any; try { body = JSON.parse(text); } catch { body = { ok: false, non_json: text.slice(0, 200) }; }
+    if (r.status === 401) return { ok: false, status: 401, error: 'Unauthorized at rob-memoryd (bad READ_KEY).' };
+    if (!r.ok) return { ok: false, status: r.status, error: 'rob-memoryd ' + r.status + ': ' + (body?.error || text.slice(0, 160)) };
+    return { ok: true, status: r.status, body };
+  } catch (e: any) { return { ok: false, status: 502, error: 'rob-memoryd unreachable: ' + String(e?.message || e).slice(0, 120) }; }
+}
 
 // ═══════════════════════════════════════════
 // "Locked in the trunk of a car" — The Tragically Hip
@@ -801,6 +847,12 @@ async function handleToolsCall(id: number | string | null, params: any, env: Env
     response = jsonRpcSuccess(id, {
       content: [{ type: 'text', text: JSON.stringify(status, null, 2) }],
     });
+  }
+  // ── rob-memoryd front door (auth forwarded, no secret held here) ─────────
+  else if (toolName.startsWith('memory_') && MEMORY_TOOLS.some((t) => t.name === toolName)) {
+    const m = await handleMemoryTool(toolName, params?.arguments, env, request);
+    if (!m.ok && !m.body) { await logPromise; return jsonRpcError(id, m.status === 502 ? -32003 : -32001, m.error || 'memory tool failed'); }
+    response = jsonRpcSuccess(id, { content: [{ type: 'text', text: JSON.stringify(m.body, null, 2) }], ...(m.body && typeof m.body === 'object' ? { memory: m.body } : {}) });
   }
   // Standard section tools — only get_all is served; every slice is refused.
   else {
