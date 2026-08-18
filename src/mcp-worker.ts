@@ -32,6 +32,7 @@ import {
 } from './weight';
 
 interface Env {
+  RL?: { limit: (o: { key: string }) => Promise<{ success: boolean }> }; // Rate Limiting binding (ring 2, 2026-08-18): public MCP surface, per-IP
   ASSETS: { fetch: (request: Request) => Promise<Response> };
   KV: KVNamespace;
   DASHBOARD_KEY: string;
@@ -963,6 +964,12 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     _currentRequest = request;
     const url = new URL(request.url);
+    // Ring 2 (2026-08-18): daemon is public by design (external agents), so the boundary is a rate limit, not Access.
+    // Per-IP token bucket via the Rate Limiting binding; /health exempt so monitors never trip it. Fails OPEN if the binding is missing.
+    if (env.RL && url.pathname !== '/health') {
+      const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+      try { const { success } = await env.RL.limit({ key: ip }); if (!success) return new Response(JSON.stringify({ error: 'rate limited', retry_after_s: 60 }), { status: 429, headers: { 'content-type': 'application/json', 'retry-after': '60' } }); } catch { /* fail open */ }
+    }
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders(request) });

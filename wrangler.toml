@@ -22,3 +22,9 @@ MEMORYD_URL = "https://rob-memoryd.robert-chuvala.workers.dev"  # rob-memoryd fr
 [[services]]
 binding = "MEMORYD"
 service = "rob-memoryd"  # service binding — the daemon's route to Rob's memory authority (T-244)
+
+# Ring 2 (2026-08-18): per-IP rate limit on the public MCP surface — 120 requests / 60s per client IP (simple, per-colo, eventually consistent)
+[[ratelimits]]
+name = "RL"
+namespace_id = "1001"
+simple = { limit = 120, period = 60 }
